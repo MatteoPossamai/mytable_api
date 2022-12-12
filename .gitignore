@@ -1,0 +1,15 @@
+# Envirnmental variabiles
+.env/
+.env
+/.env
+
+# Python virtual environment
+.venv/
+venv/
+__pycache__/
+
+# Local database
+db.sqlite3
+
+# VS Code
+.vscode/
