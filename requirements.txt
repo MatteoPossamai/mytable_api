@@ -1,6 +1,7 @@
+apturl
 beautifulsoup4==4.11.1
 blinker==1.4
-Brlapi==0.8.3
+Brlapi
 certifi==2020.6.20
 chardet==4.0.0
 charset-normalizer==2.1.1
