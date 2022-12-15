@@ -7,6 +7,7 @@ class Order(models.Model):
     payment_status = models.CharField(max_length=255)
     order_status = models.CharField(max_length=255)
     date = models.DateTimeField(auto_now_add=True)
+    note = models.TextField(blank=True, null=True)
 
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
 

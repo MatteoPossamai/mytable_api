@@ -11,5 +11,6 @@ class OrderSerializer(serializers.ModelSerializer):
             'payment_status',
             'order_status',
             'date',
+            'note',
             'restaurant',
         )
