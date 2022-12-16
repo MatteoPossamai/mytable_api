@@ -8,3 +8,6 @@ class Restaurant(models.Model):
     description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    payment_method = models.CharField(max_length=100, default=None, null=True)
+    licence_expiration = models.DateTimeField(default=None, null=True)
+
