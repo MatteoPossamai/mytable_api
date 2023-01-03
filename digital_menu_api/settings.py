@@ -36,7 +36,8 @@ DEBUG = True if os.environ['DEBUG'] == 'true' else False
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    '64.225.71.35'
+    '64.225.71.35',
+    '0.0.0.0'
 ]
 
 
@@ -102,12 +103,12 @@ if DEBUG:
 else:
     DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ['DB_NAME'],
         'USER': os.environ['DB_USER'],
         'PASSWORD': os.environ['DB_PASSWORD'],
-        'HOST': 'localhost',
-        'PORT': '',
+        'HOST': os.environ['DB_HOST'],
+        'PORT': os.environ['DB_PORT'],
     }
 }
 

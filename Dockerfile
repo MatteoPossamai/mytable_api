@@ -1,19 +1,29 @@
 FROM python:3.11
 
-# Set the working directory to /api
-RUN mkdir /api
-WORKDIR /api
-COPY . /api
+# Managing user
+RUN adduser -D devuser
+USER devuser
+WORKDIR /home/devuser
 
-# Update pip and install requirements
-RUN pip install --default-timeout=1000 --upgrade pip
-RUN pip install --default-timeout=1000 -r requirements.txt
+# Keeps Python from generating .pyc files in the container
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Turns off buffering for easier container logging
+ENV PYTHONUNBUFFERED=1
+
+COPY --chown=myuser:myuser requirements.txt requirements.txt
+RUN pip install --user --default-timeout=1000 --upgrade pip
+RUN pip install --user --default-timeout=1000 -r requirements.txt
 
 EXPOSE 5000
+
+ENV PATH="/home/myuser/."
+
+COPY --chown=myuser:myuser . .
 
 # Run manage.py runserver when the container launches
 CMD ["python", "manage.py", "runserver"]
 
 # docker build -t poss03251/my_table_api:1.0 .
 
-# docker run -d -p 5000:5000 poss03251/my_table_api:1.0
+# docker run -d -p 5000:5000 poss03251/my_table_api:1.0d
