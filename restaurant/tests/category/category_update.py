@@ -16,7 +16,6 @@ class CategoryUpdateTest(APITestCase):
         Category.objects.create(
             name="test",
             number=1,
-            iconId=1,
             isActive=True,
             restaurant=self.restaurant,
             description="test"
@@ -28,7 +27,6 @@ class CategoryUpdateTest(APITestCase):
         data = {
             "name": "test",
             "number": 1,
-            "iconId": 1,
             "isActive": True,
             "restaurant": self.restaurant.id,
             "description": "test"
@@ -42,7 +40,6 @@ class CategoryUpdateTest(APITestCase):
         data = {
             "name": "test",
             "number": 1,
-            "iconId": 1,
             "isActive": True,
             "restaurant": self.restaurant.id,
             "description": "test"
@@ -54,7 +51,6 @@ class CategoryUpdateTest(APITestCase):
         data = {
             "name": "test",
             "number": 1,
-            "iconId": 1,
             "isActive": True,
             "restaurant": self.restaurant.id,
             "description": "test"
@@ -68,7 +64,6 @@ class CategoryUpdateTest(APITestCase):
         data = {
             "name": "test",
             "number": 1,
-            "iconId": 1,
             "isActive": True,
             "restaurant": self.restaurant.id,
             "description": "test"
@@ -94,7 +89,6 @@ class CategoryUpdateTest(APITestCase):
         data = {
             "name": "test",
             "number": 1,
-            "iconId": 1,
             "isActive": True,
             "restaurant": self.restaurant.id,
             "description": "test"

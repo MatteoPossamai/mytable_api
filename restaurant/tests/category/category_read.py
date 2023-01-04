@@ -19,7 +19,6 @@ class CategoryReadSigleTest(APITestCase):
         data = {
             "name": "test",
             "number": 1,
-            "iconId": 1,
             "isActive": True,
             "restaurant": self.identificator,
             "description": "test"
@@ -60,7 +59,6 @@ class CategoryReadAllTest(APITestCase):
             Category.objects.create(
                 name="test",
                 number=i,
-                iconId=1,
                 isActive=True,
                 restaurant=self.restaurant,
                 description="test"
@@ -86,7 +84,6 @@ class CategoryReadAllActive(APITestCase):
             Category.objects.create(
                 name="test",
                 number=i,
-                iconId=1,
                 isActive=True if i % 2 == 0 else False,
                 restaurant=self.restaurant,
                 description="test"

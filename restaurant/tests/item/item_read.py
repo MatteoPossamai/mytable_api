@@ -18,7 +18,6 @@ class ItemReadSingleTest(APITestCase):
         self.category = Category.objects.create(
             name="test",
             number=1,
-            iconId=1,
             isActive=True,
             restaurant=self.restaurant,
             description="test"
@@ -76,7 +75,6 @@ class ItemReadItemMultiple(APITestCase):
         self.category = Category.objects.create(
             name="test",
             number=1,
-            iconId=1,
             isActive=True,
             restaurant=self.restaurant,
             description="test"
@@ -123,7 +121,6 @@ class ItemReadItemActive(APITestCase):
         self.category = Category.objects.create(
             name="test",
             number=1,
-            iconId=1,
             isActive=True,
             restaurant=self.restaurant,
             description="test"

@@ -16,7 +16,6 @@ class CategoryDeleteTest(APITestCase):
         Category.objects.create(
             name="test",
             number=1,
-            iconId=1,
             isActive=True,
             restaurant=self.restaurant,
             description="test"
@@ -35,7 +34,6 @@ class CategoryDeleteTest(APITestCase):
             Category.objects.create(
                 name=f"test{i}",
                 number=1,
-                iconId=1,
                 isActive=True,
                 restaurant=self.restaurant,
                 description="test"

@@ -9,7 +9,6 @@ class CategorySerializer(serializers.ModelSerializer):
             'id',
             'name',
             'number',
-            'iconId',
             'isActive',
             'restaurant',
             'description',

@@ -20,7 +20,6 @@ class CategoryCreateTest(APITestCase):
         data = {
             "name": "test",
             "number": 1,
-            "iconId": 1,
             "isActive": True,
             "restaurant": self.identificator,
             "description": "test"
@@ -36,7 +35,6 @@ class CategoryCreateTest(APITestCase):
         data = {
             "name": "test",
             "number": 1,
-            "iconId": 1,
             "isActive": True,
             "restaurant": self.identificator,
             "description": "test"
@@ -53,7 +51,6 @@ class CategoryCreateTest(APITestCase):
     def test_create_category_no_name(self):
         data = {
             "number": 1,
-            "iconId": 1,
             "isActive": True,
             "description": "test"
         }
@@ -63,17 +60,6 @@ class CategoryCreateTest(APITestCase):
     def test_create_category_no_number(self):
         data = {
             "name": "test",
-            "iconId": 1,
-            "isActive": True,
-            "description": "test"
-        }
-        response = self.client.post('/api/v1/category/create/', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_create_category_no_iconId(self):
-        data = {
-            "name": "test",
-            "number": 1,
             "isActive": True,
             "description": "test"
         }
@@ -84,7 +70,6 @@ class CategoryCreateTest(APITestCase):
         data = {
             "name": "test",
             "number": 1,
-            "iconId": 1,
             "description": "test"
         }
         response = self.client.post('/api/v1/category/create/', data, format='json')
@@ -94,7 +79,6 @@ class CategoryCreateTest(APITestCase):
         data = {
             "name": "test",
             "number": 1,
-            "iconId": 1,
             "isActive": True,
         }
         response = self.client.post('/api/v1/category/create/', data, format='json')
@@ -104,7 +88,6 @@ class CategoryCreateTest(APITestCase):
         data = {
             "name": "test",
             "number": "1",
-            "iconId": 1,
             "isActive": True,
             "restaurant": self.identificator,
             "description": "test"
