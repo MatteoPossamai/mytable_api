@@ -8,7 +8,7 @@ class RestaurantPutTest(APITestCase):
     def test_restaurant_put_success(self):
         data = {
             "name": "test",
-            "plan": 1,
+            "plan": {},
             "location": "test",
             "phone": "test",
             "description": "test"
@@ -20,7 +20,7 @@ class RestaurantPutTest(APITestCase):
         identification = Restaurant.objects.get().id
         data = {
             "name": "test2",
-            "plan": 1,
+            "plan": {"test": "test"},
             "location": "test2",
             "phone": "test2",
             "description": "test2"
@@ -34,7 +34,7 @@ class RestaurantPutTest(APITestCase):
     def test_restaurant_put_not_found(self):
         data = {
             "name": "test",
-            "plan": 1,
+            "plan": {},
             "location": "test",
             "phone": "test",
             "description": "test"
@@ -46,7 +46,7 @@ class RestaurantPutTest(APITestCase):
     def test_restaurant_put_bad_request(self):
         data = {
             "name": "test",
-            "plan": 1,
+            "plan": {},
             "location": "test",
             "phone": "test",
             "description": "test"
@@ -58,7 +58,7 @@ class RestaurantPutTest(APITestCase):
         identification = Restaurant.objects.get().id
         data = {
             "name": "test2",
-            "plan": 1,
+            "plan": {},
             "location": "test2",
             "phone": "test2",
             "description": "test2"
@@ -79,7 +79,7 @@ class RestaurantPutTest(APITestCase):
     def test_restaurant_put_change_plan(self):
         data = {
             "name": "test",
-            "plan": 1,
+            "plan": {},
             "location": "test",
             "phone": "test",
             "description": "test"
@@ -91,18 +91,18 @@ class RestaurantPutTest(APITestCase):
         identification = Restaurant.objects.get().id
 
         data = {
-            "plan": 2
+            "plan": {'test': 'test'}
         }
 
         response = self.client.put(f'/api/v1/restaurant/change-plan/{identification}/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Restaurant.objects.count(), 1)
-        self.assertEqual(Restaurant.objects.get().plan, 2)
+        self.assertEqual(Restaurant.objects.get().plan, {'test': 'test'})
 
     def test_restaurant_put_change_plan_bad_request(self):
         data = {
             "name": "test",
-            "plan": 1,
+            "plan": {},
             "location": "test",
             "phone": "test",
             "description": "test"
@@ -118,7 +118,7 @@ class RestaurantPutTest(APITestCase):
         response = self.client.put(f'/api/v1/restaurant/change-plan/{identification}/', data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Restaurant.objects.count(), 1)
-        self.assertEqual(Restaurant.objects.get().plan, 1)
+        self.assertEqual(Restaurant.objects.get().plan, {})
 
     def test_restaurant_put_change_plan_not_found(self):
         data = {}

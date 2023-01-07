@@ -11,7 +11,7 @@ class ItemUpdateTest(APITestCase):
     def setUp(self):
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan=1,
+            plan={},
             location="test",
             phone="test",
         )
@@ -45,6 +45,7 @@ class ItemUpdateTest(APITestCase):
             "iconId": 1,
             "isActive": True,
             "number": 1,
+            "category": 1,
             "facts": {}
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -54,7 +55,7 @@ class ItemUpdateTest(APITestCase):
         self.assertEqual(item.name, 'test')
         self.assertEqual(item.description, 'test')
         self.assertEqual(item.price, 1.00)
-        self.assertEqual(item.category.id, 1)
+        self.assertEqual(item.category.id, self.cat)
         self.assertEqual(item.isActive, True)
         self.assertEqual(item.number, 1)
         self.assertEqual(item.facts, {})

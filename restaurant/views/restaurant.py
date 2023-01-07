@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from ..models.restaurant import Restaurant
 from ..serializers.restaurant import RestaurantSerializer
 
+from utilities import is_jsonable
+
 # CREATE
 # Create the restaurant
 class RestaurantCreateView(generics.CreateAPIView):
@@ -33,8 +35,8 @@ class RestaurantChangePlan(views.APIView):
             id = int(pk)
             instance = Restaurant.objects.get(id=id)
             plan = request.data.get('plan')
-            if type(plan) is not int:
-                return Response({'error': 'Plan must be integer'}, status=status.HTTP_400_BAD_REQUEST)
+            if not is_jsonable(plan):
+                return Response({'error': 'Plan must be JSON serializable'}, status=status.HTTP_400_BAD_REQUEST)
             instance.plan = plan
             instance.save()
         except Restaurant.DoesNotExist:

@@ -33,7 +33,6 @@ class TakesCreateView(generics.CreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            print(e)
             return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
@@ -54,7 +53,6 @@ class TakesGetAllByOrder(generics.ListAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         except Exception as e:
-            print(e)
             return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
@@ -70,7 +68,6 @@ class TakesGetSingleView(generics.ListAPIView):
                 return Response(serializer.data, status=status.HTTP_200_OK)
     
             except Exception as e:
-                print(e)
                 return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
             except:
                 return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
@@ -97,7 +94,6 @@ class TakesDeleteAllByOrder(generics.DestroyAPIView):
                 return Response(status=status.HTTP_204_NO_CONTENT)
     
             except Exception as e:
-                print(e)
                 return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
             except:
                 return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
@@ -112,7 +108,6 @@ class TakesDeleteAllByRestaurant(generics.DestroyAPIView):
                     return Response(status=status.HTTP_204_NO_CONTENT)
         
                 except Exception as e:
-                    print(e)
                     return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
                 except:
                     return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)

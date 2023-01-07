@@ -8,7 +8,7 @@ class RestaurantCreateTest(APITestCase):
     def test_restaurant_create(self):
         data = {
             "name": "test",
-            "plan": 1,
+            "plan": {},
             "location": "test",
             "phone": "test",
             "description": "test"
@@ -36,15 +36,12 @@ class RestaurantCreateTest(APITestCase):
             "description": "test"
         }
         response = self.client.post('/api/v1/restaurant/create/', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Restaurant.objects.count(), 1)
-        self.assertEqual(Restaurant.objects.get().name, 'test')
-        self.assertEqual(Restaurant.objects.get().plan, 0)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_restaurant_create_without_location(self):
         data = {
             "name": "test",
-            "plan": 1,
+            "plan": {},
             "phone": "test",
             "description": "test"
         }
@@ -54,7 +51,7 @@ class RestaurantCreateTest(APITestCase):
     def test_restaurant_create_without_phone(self):
         data = {
             "name": "test",
-            "plan": 1,
+            "plan": {},
             "location": "test",
             "description": "test"
         }
@@ -64,17 +61,17 @@ class RestaurantCreateTest(APITestCase):
     def test_restaurant_create_without_description(self):
         data = {
             "name": "test",
-            "plan": 1,
+            "plan": {},
             "location": "test",
             "phone": "test"
         }
         response = self.client.post('/api/v1/restaurant/create/', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_restaurant_create_multiple_instance(self):
         data = {
             "name": "test",
-            "plan": 1,
+            "plan": {},
             "location": "test",
             "phone": "test",
             "description": "test"

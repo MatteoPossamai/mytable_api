@@ -8,7 +8,7 @@ class RestaurantDeleteTest(APITestCase):
     def test_restaurant_delete(self):
         data = {
             "name": "test",
-            "plan": 1,
+            "plan": {},
             "location": "test",
             "phone": "test",
             "description": "test"

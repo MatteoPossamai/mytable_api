@@ -9,7 +9,7 @@ class CategoryDeleteTest(APITestCase):
     def setUp(self):
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan=1,
+            plan={},
             location="test",
             phone="test",
         )
