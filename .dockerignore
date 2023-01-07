@@ -1,9 +1,4 @@
-# Envirnmental variabiles
-.env/
-.env
-/.env
-
-# Python virtual environment
+#Python virtual environment
 .venv/
 venv/
 __pycache__/

@@ -1,7 +1,7 @@
 FROM python:3.11
 
 # Managing user
-RUN adduser --disabled-login --disabled-password devuser
+RUN useradd -ms /bin/bash devuser
 USER devuser
 WORKDIR /home/devuser
 
@@ -17,7 +17,7 @@ RUN pip install --user --default-timeout=1000 -r requirements.txt
 
 EXPOSE 5000
 
-ENV PATH="/home/devuser/."
+#ENV PATH="/home/devuser/.local/bin"
 
 COPY --chown=devuser:devuser . .
 
