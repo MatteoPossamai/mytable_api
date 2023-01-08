@@ -6,3 +6,4 @@ from .constants import REDIRECT_PAGE, DOMAIN_URL
 from .cors import *
 from .database import DATABASES
 from .rest_framework import REST_FRAMEWORK
+from .security import *
