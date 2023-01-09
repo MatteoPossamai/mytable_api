@@ -6,7 +6,7 @@ class RestaurantUser(models.Model):
     username = models.CharField(max_length=255)
     email = models.EmailField(max_length=255, unique=True)
     password = models.CharField(max_length=255)
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, blank=True, null=True)
     level = models.IntegerField(default=0)
 
     def __str__(self):
