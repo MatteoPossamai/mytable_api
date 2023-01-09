@@ -1,5 +1,5 @@
 # IMPORTING STANDARD PACKAGES
 import os
 
-REDIRECT_PAGE = os.environ.get("REDIRECT_PAGE")
-DOMAIN_URL = os.environ.get("DOMAIN_URL")
+REDIRECT_PAGE = os.getenv("REDIRECT_PAGE")
+DOMAIN_URL = os.getenv("DOMAIN_URL")
