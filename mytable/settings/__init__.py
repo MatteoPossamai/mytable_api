@@ -7,3 +7,4 @@ from .cors import *
 from .database import DATABASES
 from .rest_framework import REST_FRAMEWORK
 from .security import *
+from .cache import *
