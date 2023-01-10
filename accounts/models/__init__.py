@@ -1,4 +1,4 @@
 from django.conf import settings
 
-from .custom_user import CustomUser
+from .base_user import BaseUser
 from .restaurant_user import RestaurantUser

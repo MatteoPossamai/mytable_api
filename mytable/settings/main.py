@@ -23,6 +23,6 @@ elif ENV_TYPE == "master":
         "./envs/django/.configs.env",
         "./envs/postgres/.configs.env",
     ]
-print(paths)
+
 for path in paths:
     load_dotenv(path)

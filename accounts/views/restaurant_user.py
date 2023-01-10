@@ -1,5 +1,6 @@
 from rest_framework import generics, status, views
 from rest_framework.response import Response
+from rest_framework import permissions
 
 from ..models.restaurant_user import RestaurantUser
 from ..serializers.restaurant_user import RestaurantUserSerializer
@@ -10,6 +11,7 @@ Encryptor = Encryptor()
 # CREATE
 # Create the restaurant user
 class RestaurantUserCreateView(views.APIView):
+
     def post(self, request, format=None):
         data = request.data
         # Hash password for security
@@ -36,15 +38,16 @@ class RestaurantUserGetView(generics.RetrieveAPIView):
 class RestaurantUserPutView(generics.RetrieveUpdateDestroyAPIView):
     queryset = RestaurantUser.objects.all()
     serializer_class = RestaurantUserSerializer
-
+    
 # DELETE
 # Delete the restaurant user
 class RestaurantUserDeleteView(generics.DestroyAPIView):
     queryset = RestaurantUser.objects.all()
-    serializer_class = RestaurantUserSerializer
+    serializer_class = RestaurantUserSerializer 
 
 # Login
-class RestaurantUserLoginView(views.APIView):
+class RestaurantUserLoginView(views.APIView):  
+    
     def post(self, request, format=None):
         data = request.data
         username = data['username']

@@ -9,3 +9,7 @@ urlpatterns = [
     path(base_url, include('order.urls')),
     path(base_url, include('restaurant.urls')),
 ]
+
+urlpatterns += [
+    path('api-auth/', include('rest_framework.urls')),
+]
