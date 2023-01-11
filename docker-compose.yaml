@@ -35,6 +35,22 @@ services:
       - db
       - redis
 
+  celery:
+    image: celery
+    container_name: celery
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ['python', '-m', 'celery', '-A', 'mytable' ,'worker', '-l', 'INFO']
+    volumes:
+      - .:/api
+    depends_on:
+      - redis
+      - my_table
+    links:
+      - redis
+
 volumes:
   my_table_postgres_db:
   redis_data:
