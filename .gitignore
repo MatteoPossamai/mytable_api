@@ -19,3 +19,5 @@ data.json
 
 # SECRET_KEY
 secret_key.txt
+
+.devcontainer/
