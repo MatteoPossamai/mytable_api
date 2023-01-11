@@ -13,10 +13,11 @@ DEBUG = eval(os.getenv("DEBUG"))
 ALLOWED_HOSTS = eval(os.getenv("ALLOWED_HOSTS"))
 
 MIDDLEWARE = [
+    # For CSRF in future 
+    # https://docs.djangoproject.com/en/4.1/ref/csrf/#ajax
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'csp.middleware.CSPMiddleware',

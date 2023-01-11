@@ -13,7 +13,7 @@ class RestaurantCreateView(generics.CreateAPIView):
     # https://www.youtube.com/watch?v=_nZygPQ3gmo&list=PLBKfJRrwXFBL4ty47nf4LXxvkL7Kf0huF&index=8
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -23,7 +23,7 @@ class RestaurantCreateView(generics.CreateAPIView):
 class RestaurantGetAllView(generics.ListAPIView):
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    permission_classes = [IsOwnerOrReadOnly]
 
 # Get single restaurant
 class RestaurantGetView(generics.RetrieveAPIView):

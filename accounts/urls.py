@@ -2,7 +2,7 @@ from django.urls import path, include
 
 from .views import RestaurantUserCreateView, \
     RestaurantUserGetAllView, RestaurantUserGetView, RestaurantUserPutView, \
-    RestaurantUserDeleteView, RestaurantUserLoginView
+    RestaurantUserDeleteView, RestaurantUserLoginView, RestaurantUserLogoutView, RestaurantUserLogged
 
 
 current_version = 'v1'
@@ -18,8 +18,10 @@ restaurant_user_urlpatterns = [
     path('put/<int:pk>/', RestaurantUserPutView.as_view(), name='restaurant_user_put'),
     # Delete
     path('delete/<int:pk>/', RestaurantUserDeleteView.as_view(), name='restaurant_user_delete'),
-    # Login, Logout
+    # Login, Logout, Logged
     path('login/', RestaurantUserLoginView.as_view(), name='restaurant_user_login'),
+    path('logout/', RestaurantUserLogoutView.as_view(), name='restaurant_user_logout'),
+    path('logged/', RestaurantUserLogged.as_view(), name='restaurant_user_logged'),
 ]
 
 # ALL URLS

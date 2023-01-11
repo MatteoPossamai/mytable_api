@@ -14,3 +14,6 @@ class Restaurant(models.Model):
     licence_expiration = models.DateTimeField(default=None, null=True)
 
     owner = models.ForeignKey(RestaurantUser, on_delete=models.CASCADE, related_name='restaurants')
+
+    def __str__(self):
+        return self.name

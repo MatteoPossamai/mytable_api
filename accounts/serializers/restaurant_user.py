@@ -4,7 +4,8 @@ from accounts.models import RestaurantUser
 from restaurant.models import Restaurant
 
 class RestaurantUserSerializer(serializers.ModelSerializer):
-    restaurant = serializers.PrimaryKeyRelatedField(many=True, queryset=Restaurant.objects.all()) # ? 
+    restaurants = serializers.PrimaryKeyRelatedField(many=True, queryset=Restaurant.objects.all(),
+        allow_null=True, default=None)
     owner = serializers.ReadOnlyField(source='owner.username')
 
     class Meta:
@@ -13,7 +14,6 @@ class RestaurantUserSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'email',
-            'restaurants',
             'owner',
-            'level',
+            'restaurants',
         )

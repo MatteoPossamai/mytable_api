@@ -14,4 +14,5 @@ class RestaurantSerializer(serializers.ModelSerializer):
             'description',
             'payment_method',
             'licence_expiration',
+            'owner'
         )
