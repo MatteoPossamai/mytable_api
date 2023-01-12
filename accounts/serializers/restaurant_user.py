@@ -14,6 +14,7 @@ class RestaurantUserSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'email',
+            'password',
             'owner',
             'restaurants',
         )

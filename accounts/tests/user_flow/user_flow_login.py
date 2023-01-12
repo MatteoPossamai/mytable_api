@@ -9,22 +9,22 @@ class RestaurantUserLoginUser(APITestCase):
         self.data = {
             'username': 'test',
             'email': 'test@test.com',
-            'password': 'password'
+            'password': 'password11'
         }
 
-    def login_user_success(self):
-        self.client.post('/api/v1/restaurant_user/signup/', self.data)
+    def test_login_user_success(self):
+        self.client.post('/api/v1/restaurant_user/signup/', self.data, format='json')
 
-        response = self.client.post('/api/v1/restaurant_user/login/', self.data)
+        response = self.client.post('/api/v1/restaurant_user/login/', self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIsNotNone(response.data.get('token'))
+        self.assertIsNotNone(response.json().get('token'))
 
-    def login_user_fail(self):
+    def test_login_user_fail(self):
         response = self.client.post('/api/v1/restaurant_user/login/', self.data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data.get('error'), 'User does not exists')
+        self.assertEqual(response.json().get('error'), 'User does not exists')
 
-    def login_user_missing_email(self):
+    def test_login_user_missing_email(self):
         data = {
             'username': 'test',
             'password': 'password'
@@ -33,7 +33,7 @@ class RestaurantUserLoginUser(APITestCase):
         response = self.client.post('/api/v1/restaurant_user/login/', data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def login_user_missing_password(self):
+    def test_login_user_missing_password(self):
         data = {
             'username': 'test',
             'email': 'test@test.com',

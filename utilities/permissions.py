@@ -26,4 +26,8 @@ class IsLogged(permissions.BasePermission):
     def has_permission(self, request, view):
         # Read in header the token and user, and if it corresponds, 
         # return True, else return False
+        token = request.headers.get('token')
+        user = request.data.get('user')
+        if user is None or token is None:
+            return False
         return is_token_valid(request.headers.get('token'), request.data.get('user'))

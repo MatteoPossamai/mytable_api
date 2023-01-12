@@ -39,7 +39,6 @@ class RestaurantUserCreateView(views.APIView):
 
             # Create the token
             token = jwt.encode({'user': user.email, 'hash': str(datetime.now())}, 'secret', algorithm='HS256')
-
             # Save the token to redis
             save_user_token_to_redis(user.email, token)
 
@@ -49,6 +48,7 @@ class RestaurantUserCreateView(views.APIView):
             return JsonResponse({'error': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
+            print(e)
             return JsonResponse({'error': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
 
 # READ
@@ -81,38 +81,36 @@ class RestaurantUserLoginView(views.APIView):
         data = request.data
         try:
             # Get the user and the token from the request
-            user = request.headers.get('user')
             token = request.headers.get('token')
+            user = data.get('email')
             password = data.get('password')
 
             # Check via redis if the token is still valid, checking if it is
             # in the cache, otherwise, it is time to create a new one
-            if is_token_valid(token, user):
+            if token is not None and is_token_valid(token, user):
                 return JsonResponse({'token': token}, status=status.HTTP_200_OK)
             
             # Get the user from the database
-            payload = jwt.decode(token, 'secret', algorithms=['HS256'])
-            user_email = payload['user']
-            user = RestaurantUser.objects.get(email=user_email)
+            user = RestaurantUser.objects.get(email=user)
 
             # Check if the password is correct
             if not Encryptor.check_password(password, user.password):
-                return JsonResponse({'error': 'Incorrect password given'}, status=status.HTTP_401_UNAUTHORIZED)
+                return JsonResponse({'error': 'Incorrect password given'}, status=status.HTTP_400_BAD_REQUEST)
             
             # Create a new token
             token = jwt.encode({'user': user.email, 'hash': str(datetime.now())}, 'secret', algorithm='HS256')
 
             # Save the token to redis
-            save_user_token_to_redis(user_email, token)
+            save_user_token_to_redis(user, token)
 
             # Return the success, and the token itself
             return JsonResponse({'token': token}, status=status.HTTP_200_OK)
 
         # If user does not exists
         except ObjectDoesNotExist:
-            return JsonResponse({'error': 'User does not exists'}, status=status.HTTP_401_UNAUTHORIZED)
+            return JsonResponse({'error': 'User does not exists'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return JsonResponse({'error': f'{e}'}, status=status.HTTP_401_UNAUTHORIZED) 
+            return JsonResponse({'error': f'{e}'}, status=status.HTTP_400_BAD_REQUEST) 
             
 # Logged
 class RestaurantUserLogged(views.APIView):
@@ -136,4 +134,4 @@ class RestaurantUserLogoutView(views.APIView):
             return JsonResponse({'success': 'Logged out'}, status=status.HTTP_200_OK)
         
         except:
-            return JsonResponse({'error': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+            return JsonResponse({'error': 'Invalid token'}, status=status.HTTP_403_FORBIDDEN)

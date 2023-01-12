@@ -27,3 +27,4 @@ def is_token_valid(token: str, user: str) -> bool:
     """
     cached_token = cache.get(user)
     return cached_token == token
+    

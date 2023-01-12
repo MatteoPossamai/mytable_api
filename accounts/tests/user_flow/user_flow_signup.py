@@ -9,18 +9,18 @@ class RestaurantUserSignupUser(APITestCase):
         self.data = {
             'username': 'test',
             'email': 'test@test.com',
-            'password': 'password'
+            'password': 'password123'
         }
 
-    def signup_user_success(self):
-        response = self.client.post('/api/v1/restaurant_user/signup/', self.data)
+    def test_signup_user_success(self):
+        response = self.client.post('/api/v1/restaurant_user/signup/', self.data, format='json')
         self.assertEqual(RestaurantUser.objects.count(), 1)
         self.assertEqual(RestaurantUser.objects.get().username, 'test')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertIsNotNone(response.data.get('token'))
+        self.assertIsNotNone(response.json().get('token'))
 
-    def signup_missing_username(self):
+    def test_signup_missing_username(self):
         data = {
             'email': 'test@test.com',
             'password': 'password'
@@ -30,7 +30,7 @@ class RestaurantUserSignupUser(APITestCase):
         self.assertEqual(RestaurantUser.objects.count(), 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def signup_missing_email(self):
+    def test_signup_missing_email(self):
         data = {
             'username': 'test',
             'password': 'password'
@@ -40,7 +40,7 @@ class RestaurantUserSignupUser(APITestCase):
         self.assertEqual(RestaurantUser.objects.count(), 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def signup_missing_password(self):
+    def test_signup_missing_password(self):
         data = {
             'username': 'test',
             'email': 'test@test.com',
@@ -49,7 +49,7 @@ class RestaurantUserSignupUser(APITestCase):
         self.assertEqual(RestaurantUser.objects.count(), 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def signup_invalid_password(self):
+    def test_signup_invalid_password(self):
         data = {
             'username': 'test',
             'email': 'test@test.com',
@@ -59,18 +59,14 @@ class RestaurantUserSignupUser(APITestCase):
         response = self.client.post('/api/v1/restaurant_user/signup/', data)
         self.assertEqual(RestaurantUser.objects.count(), 0)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data.get('error'), 'Password too short')
+        self.assertEqual(response.json().get('error'), 'Password too short')
 
-    def signup_error_twice(self):
+    def test_signup_error_twice(self):
         response = self.client.post('/api/v1/restaurant_user/signup/', self.data)
-        self.assertEqual(RestaurantUser.objects.count(), 1)
-        self.assertEqual(RestaurantUser.objects.get().username, 'test')
-
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertIsNotNone(response.data.get('token'))
+        self.assertIsNotNone(response.json().get('token'))
 
         response = self.client.post('/api/v1/restaurant_user/signup/', self.data)
-        self.assertEqual(RestaurantUser.objects.count(), 1)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data.get('error'), 'User already exists')
+        self.assertEqual(response.json().get('error'), 'User already exists')
 

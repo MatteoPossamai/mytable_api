@@ -21,3 +21,4 @@ data.json
 secret_key.txt
 
 .devcontainer/
+dump.rdb
