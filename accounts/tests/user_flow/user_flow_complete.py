@@ -26,7 +26,7 @@ class RestaurantUserCompleteFlow(APITestCase):
         # Check if logged
         response = self.client.post('/api/v1/restaurant_user/logged/', data=self.data_logged, format='json', HTTP_TOKEN=token)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json().get("Logged"), "True")
+        self.assertEqual(response.json().get("Logged"), True)
 
         # Logout
         response = self.client.post('/api/v1/restaurant_user/logout/', data=self.data_logged, format='json', HTTP_TOKEN=token)
@@ -45,7 +45,7 @@ class RestaurantUserCompleteFlow(APITestCase):
         # Check if logged
         response = self.client.post('/api/v1/restaurant_user/logged/', data=self.data_logged, format='json', HTTP_TOKEN=token)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json().get("Logged"), "True")
+        self.assertEqual(response.json().get("Logged"), True)
 
 
     def test_complete_2(self):
@@ -76,7 +76,7 @@ class RestaurantUserCompleteFlow(APITestCase):
         # Check if logged
         response = self.client.post('/api/v1/restaurant_user/logged/', data=self.data_logged, format='json', HTTP_TOKEN=token)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json().get("Logged"), "True")
+        self.assertEqual(response.json().get("Logged"), True)
 
         # Login
         response = self.client.post('/api/v1/restaurant_user/login/', self.data, format='json')
@@ -87,4 +87,4 @@ class RestaurantUserCompleteFlow(APITestCase):
         # Check if logged
         response = self.client.post('/api/v1/restaurant_user/logged/', data=self.data_logged, format='json', HTTP_TOKEN=token)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json().get("Logged"), "True")
+        self.assertEqual(response.json().get("Logged"), True)

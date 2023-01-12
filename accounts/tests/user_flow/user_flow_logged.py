@@ -22,7 +22,7 @@ class RestaurantUserLoggedUser(APITestCase):
 
         response = self.client.post('/api/v1/restaurant_user/logged/', data=self.data_logged, format='json', HTTP_TOKEN=token)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json().get("Logged"), "True")
+        self.assertEqual(response.json().get("Logged"), True)
 
     def test_logged_not_logged(self):
         response = self.client.post('/api/v1/restaurant_user/logged/', data=self.data_logged, format='json', HTTP_TOKEN=None)

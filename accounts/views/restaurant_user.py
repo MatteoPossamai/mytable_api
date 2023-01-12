@@ -59,20 +59,119 @@ class RestaurantUserGetAllView(generics.ListAPIView):
 
 # Get single restaurant user
 class RestaurantUserGetView(generics.RetrieveAPIView):
-    queryset = RestaurantUser.objects.all()
-    serializer_class = RestaurantUserSerializer
+    
+    def get(self, request, email, format=None):
+        try:
+            user = RestaurantUser.objects.get(email=email)
+            serializer = RestaurantUserSerializer(user)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            print(e)
+            return JsonResponse({'error': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
 
 # UPDATE
-# Retrieve the restaurant user
-class RestaurantUserPutView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = RestaurantUser.objects.all()
-    serializer_class = RestaurantUserSerializer
+# Modify username
+class RestaurantUserPutUserName(views.APIView):
+    permission_classes = [IsLogged]
+
+    def put(self, request, email, format=None):
+        try:
+            # Get the user email from the request
+            user_email = request.data.get("user")
+            new_username = request.data.get("username")
+
+            if (new_username == None or new_username == "" or len(new_username) < 3 or len(new_username) > 20):
+                return JsonResponse({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Check if the user that request the delete is the one that needs to be updated
+            # otherwise, all fails
+            if email != user_email:
+                return JsonResponse({'error': 'You cannot request to update another user'},
+                 status=status.HTTP_401_UNAUTHORIZED)
+
+            # Delete the user itself
+            user = RestaurantUser.objects.get(email=email)
+            user.username = new_username
+            user.save()
+
+            # Return the success deletion
+            return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
+
+        except ObjectDoesNotExist:
+            return JsonResponse({'error': 'User does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except IntegrityError:
+            return JsonResponse({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            print(e)
+            return JsonResponse({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
+
+# Modify Password
+class RestaurantUserPutPassword(views.APIView):
+    permission_classes = [IsLogged]
+
+    def put(self, request, email, format=None):
+        try:
+            # Get the user email from the request
+            user_email = request.data.get("user")
+            new_password = request.data.get("password")
+            
+            # Check if the user that request the delete is the one that needs to be updated
+            # otherwise, all fails
+            if email != user_email:
+                return JsonResponse({'error': 'You cannot request to update another user'},
+                 status=status.HTTP_401_UNAUTHORIZED)
+
+            valid, error = valid_password(new_password)
+            if not valid:
+                return JsonResponse({'error': error}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Delete the user itself
+            user = RestaurantUser.objects.get(email=email)
+            user.password = Encryptor.encrypt(new_password)
+            user.save()
+
+            # Return the success deletion
+            return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
+
+        except ObjectDoesNotExist:
+            return JsonResponse({'error': 'User does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return JsonResponse({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
+
     
 # DELETE
 # Delete the restaurant user
-class RestaurantUserDeleteView(generics.DestroyAPIView):
-    queryset = RestaurantUser.objects.all()
-    serializer_class = RestaurantUserSerializer 
+class RestaurantUserDeleteView(views.APIView):
+    permission_classes = [IsLogged]
+    
+    def post(self, request, email, format=None):
+        try:
+            # Get the user email from the request
+            user_email = request.data.get("user")
+            
+            # Check if the user that request the delete is the one that needs to be deleted
+            # otherwise, all fails
+            if email != user_email:
+                return JsonResponse({'error': 'You cannot request to delete another user'},
+                 status=status.HTTP_401_UNAUTHORIZED)
+
+            # Delete the user itself
+            user = RestaurantUser.objects.get(email=email)
+            user.delete()
+
+            # Return the success deletion
+            return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
+
+        except ObjectDoesNotExist:
+            return JsonResponse({'error': 'User does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            return JsonResponse({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
 
 # Login
 class RestaurantUserLoginView(views.APIView):  
@@ -117,7 +216,7 @@ class RestaurantUserLogged(views.APIView):
     permission_classes = [IsLogged]
 
     def post(self, request, format=None):
-        return JsonResponse({'Logged': 'True'}, status=status.HTTP_200_OK)
+        return JsonResponse({'Logged': True}, status=status.HTTP_200_OK)
 
 # Logout
 class RestaurantUserLogoutView(views.APIView):

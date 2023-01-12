@@ -1,8 +1,9 @@
 from django.urls import path, include
 
 from .views import RestaurantUserCreateView, \
-    RestaurantUserGetAllView, RestaurantUserGetView, RestaurantUserPutView, \
-    RestaurantUserDeleteView, RestaurantUserLoginView, RestaurantUserLogoutView, RestaurantUserLogged
+    RestaurantUserGetAllView, RestaurantUserGetView, RestaurantUserPutUserName, \
+    RestaurantUserDeleteView, RestaurantUserLoginView, RestaurantUserLogoutView, RestaurantUserLogged, \
+    RestaurantUserPutPassword
 
 
 current_version = 'v1'
@@ -11,11 +12,13 @@ current_version = 'v1'
 restaurant_user_urlpatterns = [
     # Read
     path('', RestaurantUserGetAllView.as_view(), name='restaurant_user_get_all'),
-    path('get/<int:pk>/', RestaurantUserGetView.as_view(), name='restaurant_user_get'),
-    # Update
-    path('put/<int:pk>/', RestaurantUserPutView.as_view(), name='restaurant_user_put'),
+    path('get/<str:email>/', RestaurantUserGetView.as_view(), name='restaurant_user_get'),
+    # Update username
+    path('put/<str:email>/', RestaurantUserPutUserName.as_view(), name='restaurant_user_put'),
+    # Update password
+    path('put/password/<str:email>/', RestaurantUserPutPassword.as_view(), name='restaurant_user_put_password'),
     # Delete
-    path('delete/<int:pk>/', RestaurantUserDeleteView.as_view(), name='restaurant_user_delete'),
+    path('delete/<str:email>/', RestaurantUserDeleteView.as_view(), name='restaurant_user_delete'),
     # Signup, Login, Logout, Logged
     path('signup/', RestaurantUserCreateView.as_view(), name='restaurant_user_create'),
     path('login/', RestaurantUserLoginView.as_view(), name='restaurant_user_login'),
