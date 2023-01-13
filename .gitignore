@@ -19,6 +19,7 @@ data.json
 
 # SECRET_KEY
 secret_key.txt
+jwt_secret.txt
 
 .devcontainer/
 dump.rdb

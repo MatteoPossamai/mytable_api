@@ -7,6 +7,9 @@ CELERY_RESULT_BACKEND = os.getenv("CELERY_BROKER", "redis://6379/0")
 # REDIS
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 
+# TTL SETTINGS
+CACHE_TTL_USER = os.getenv("CACHE_TTL_USER", 60 * 60 * 24 * 7)  # 7 days
+CACHE_TTL_OBJECT = os.getenv("CACHE_TTL_OBJECT", 60 * 60 * 3)  # 3 hours
 
 CACHES = {
     "default": {

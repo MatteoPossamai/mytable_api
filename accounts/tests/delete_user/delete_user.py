@@ -12,10 +12,6 @@ class RestaurantUserDelete(APITestCase):
             'password': 'password11'
         }
 
-        self.data_logged = {
-            "user": "test123@test.com"
-        }
-
     def test_delete_success(self):
         # Signup
         response = self.client.post('/api/v1/restaurant_user/signup/', self.data, format='json')
@@ -27,8 +23,7 @@ class RestaurantUserDelete(APITestCase):
         self.assertEqual(RestaurantUser.objects.count(), 1)
 
         # Delete
-        response = self.client.post("/api/v1/restaurant_user/delete/test123@test.com/", self.data_logged, 
-            format='json', HTTP_TOKEN=token)
+        response = self.client.delete("/api/v1/restaurant_user/delete/", ormat='json', HTTP_TOKEN=token)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         # Check with ORM
@@ -36,22 +31,5 @@ class RestaurantUserDelete(APITestCase):
 
     def test_delete_not_logged(self):
         # Delete
-        response = self.client.post("/api/v1/restaurant_user/delete/test123@test.com/", self.data_logged, 
-            format='json', HTTP_TOKEN=None)
+        response = self.client.delete("/api/v1/restaurant_user/delete/", format='json', HTTP_TOKEN=None)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_delete_user_another_user(self):
-        # Signup
-        response = self.client.post('/api/v1/restaurant_user/signup/', self.data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertIsNotNone(response.json().get('token'))
-        token = response.json().get('token')
-
-        # Check with ORM
-        self.assertEqual(RestaurantUser.objects.count(), 1)
-
-        # Delete
-        response = self.client.post("/api/v1/restaurant_user/delete/test13@test.com/", self.data_logged, 
-            format='json', HTTP_TOKEN=token)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertEqual(response.json().get('error'), 'You cannot request to delete another user')

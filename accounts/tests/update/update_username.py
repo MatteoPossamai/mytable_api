@@ -25,8 +25,7 @@ class RestaurantUserUpdateUsername(APITestCase):
         token = response.json().get('token')
 
         # Update
-        response = self.client.put('/api/v1/restaurant_user/put/test123@test.com/', self.data_logged, 
-            format='json', HTTP_TOKEN=token)
+        response = self.client.put('/api/v1/restaurant_user/put/', self.data_logged, format='json', HTTP_TOKEN=token)
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -35,22 +34,10 @@ class RestaurantUserUpdateUsername(APITestCase):
         self.assertEqual(user.username, 'test2')
 
     def test_update_username_not_logged(self):
-        response = self.client.put('/api/v1/restaurant_user/put/test123@test.com/', self.data_logged, 
+        response = self.client.put('/api/v1/restaurant_user/put/', self.data_logged, 
             format='json', HTTP_TOKEN=None)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_update_username_another_user(self):
-        # Signup
-        response = self.client.post('/api/v1/restaurant_user/signup/', self.data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertIsNotNone(response.json().get('token'))
-        token = response.json().get('token')
-
-        # Update
-        response = self.client.put('/api/v1/restaurant_user/put/test13@test.com/', self.data_logged, 
-            format='json', HTTP_TOKEN=token)
-        self.assertEqual(response.json().get('error'), 'You cannot request to update another user')
 
     def test_update_username_missing_username(self):
         # Signup
@@ -64,10 +51,10 @@ class RestaurantUserUpdateUsername(APITestCase):
         }
 
         # Update
-        response = self.client.put('/api/v1/restaurant_user/put/test123@test.com/', bad_data, 
+        response = self.client.put('/api/v1/restaurant_user/put/', bad_data, 
             format='json', HTTP_TOKEN=token)
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_update_like_another_user(self):
         # Signup
@@ -84,7 +71,7 @@ class RestaurantUserUpdateUsername(APITestCase):
         
         response = self.client.post('/api/v1/restaurant_user/signup/', data2, format='json')
 
-        response = self.client.put('/api/v1/restaurant_user/put/test123@test.com/', self.data_logged, 
+        response = self.client.put('/api/v1/restaurant_user/put/', self.data_logged, 
             format='json', HTTP_TOKEN=token)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

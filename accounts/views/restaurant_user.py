@@ -1,20 +1,24 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.http.response import JsonResponse
 from rest_framework import generics, status, views
-from utilities.tasks import save_user_token_to_redis, is_token_valid, delete_user_token_from_redis
+from utilities.tasks import save_user_token_to_redis, is_token_valid, delete_token_from_redis
 import jwt
 from django.db import IntegrityError
 from datetime import datetime
 
 from ..models.restaurant_user import RestaurantUser
 from ..serializers.restaurant_user import RestaurantUserSerializer
-from utilities import Encryptor, valid_password, IsLogged
+from utilities import Encryptor, IsLogged, valid_password, valid_username
+from mytable.settings import JWT_SECRET
 
 Encryptor = Encryptor()
 
 # CREATE
 # Create the restaurant user
 class RestaurantUserCreateView(views.APIView):
+    """
+    Description: handles user creation and signup
+    """
     queryset = RestaurantUser.objects.all()
     serializer_class = RestaurantUserSerializer
 
@@ -38,9 +42,9 @@ class RestaurantUserCreateView(views.APIView):
             user.save()
 
             # Create the token
-            token = jwt.encode({'user': user.email, 'hash': str(datetime.now())}, 'secret', algorithm='HS256')
+            token = jwt.encode({'user': user.email, 'date': str(datetime.now())}, JWT_SECRET, algorithm='HS256')
             # Save the token to redis
-            save_user_token_to_redis(user.email, token)
+            save_user_token_to_redis(token)
 
             # Return the success, and the token itself
             return JsonResponse({'token': token}, status=status.HTTP_201_CREATED)
@@ -54,11 +58,17 @@ class RestaurantUserCreateView(views.APIView):
 # READ
 # Get the restaurant user list
 class RestaurantUserGetAllView(generics.ListAPIView):
+    """
+    Description: returns all user instance
+    """
     queryset = RestaurantUser.objects.all()
     serializer_class = RestaurantUserSerializer
 
 # Get single restaurant user
 class RestaurantUserGetView(generics.RetrieveAPIView):
+    """
+    Description: returns a single user instance
+    """
     
     def get(self, request, email, format=None):
         try:
@@ -73,27 +83,41 @@ class RestaurantUserGetView(generics.RetrieveAPIView):
 
 # UPDATE
 # Modify username
-class RestaurantUserPutUserName(views.APIView):
+class RestaurantUserPutUser(views.APIView):
+    """
+    Description: handles username and passowrd changes
+    """
     permission_classes = [IsLogged]
 
-    def put(self, request, email, format=None):
+    def put(self, request, format=None):
         try:
+
+            token = request.headers.get('token')
+            decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+            user_email = decoded['user'] 
+
             # Get the user email from the request
-            user_email = request.data.get("user")
-            new_username = request.data.get("username")
+            new_username = request.data.get('username')
+            new_password = request.data.get('password')
 
-            if (new_username == None or new_username == "" or len(new_username) < 3 or len(new_username) > 20):
-                return JsonResponse({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
-            
-            # Check if the user that request the delete is the one that needs to be updated
-            # otherwise, all fails
-            if email != user_email:
-                return JsonResponse({'error': 'You cannot request to update another user'},
-                 status=status.HTTP_401_UNAUTHORIZED)
+            # Get the user to modify
+            user = RestaurantUser.objects.get(email=user_email)
 
-            # Delete the user itself
-            user = RestaurantUser.objects.get(email=email)
-            user.username = new_username
+            # Handle username change
+            valid, error = valid_username(new_username)
+            if new_username and valid:
+                user.username = new_username
+            elif new_username:
+                return JsonResponse({'error': error}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Handle password change
+            valid, error = valid_password(new_password)
+            if new_password and valid:
+                user.password = Encryptor.encrypt(new_password)
+            elif new_password:
+                return JsonResponse({'error': error}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Save modifications
             user.save()
 
             # Return the success deletion
@@ -108,60 +132,24 @@ class RestaurantUserPutUserName(views.APIView):
         except Exception as e:
             print(e)
             return JsonResponse({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
-
-# Modify Password
-class RestaurantUserPutPassword(views.APIView):
-    permission_classes = [IsLogged]
-
-    def put(self, request, email, format=None):
-        try:
-            # Get the user email from the request
-            user_email = request.data.get("user")
-            new_password = request.data.get("password")
-            
-            # Check if the user that request the delete is the one that needs to be updated
-            # otherwise, all fails
-            if email != user_email:
-                return JsonResponse({'error': 'You cannot request to update another user'},
-                 status=status.HTTP_401_UNAUTHORIZED)
-
-            valid, error = valid_password(new_password)
-            if not valid:
-                return JsonResponse({'error': error}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Delete the user itself
-            user = RestaurantUser.objects.get(email=email)
-            user.password = Encryptor.encrypt(new_password)
-            user.save()
-
-            # Return the success deletion
-            return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
-
-        except ObjectDoesNotExist:
-            return JsonResponse({'error': 'User does not exists'}, status=status.HTTP_400_BAD_REQUEST)
-
-        except Exception as e:
-            return JsonResponse({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
-
     
 # DELETE
 # Delete the restaurant user
 class RestaurantUserDeleteView(views.APIView):
+    """
+    Description: handles the user deletion
+    """
     permission_classes = [IsLogged]
     
-    def post(self, request, email, format=None):
-        try:
-            # Get the user email from the request
-            user_email = request.data.get("user")
-            
-            # Check if the user that request the delete is the one that needs to be deleted
-            # otherwise, all fails
-            if email != user_email:
-                return JsonResponse({'error': 'You cannot request to delete another user'},
-                 status=status.HTTP_401_UNAUTHORIZED)
+    def delete(self, request, format=None):
+        try:      
+
+            token = request.headers.get('token')
+            decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+            user_email = decoded['user']    
 
             # Delete the user itself
-            user = RestaurantUser.objects.get(email=email)
+            user = RestaurantUser.objects.get(email=user_email)
             user.delete()
 
             # Return the success deletion
@@ -171,10 +159,14 @@ class RestaurantUserDeleteView(views.APIView):
             return JsonResponse({'error': 'User does not exists'}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
+            print(e)
             return JsonResponse({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
 
 # Login
 class RestaurantUserLoginView(views.APIView):  
+    """
+    Description: logs in a user
+    """
     
     def post(self, request, format=None):
         data = request.data
@@ -197,10 +189,10 @@ class RestaurantUserLoginView(views.APIView):
                 return JsonResponse({'error': 'Incorrect password given'}, status=status.HTTP_400_BAD_REQUEST)
             
             # Create a new token
-            token = jwt.encode({'user': user.email, 'hash': str(datetime.now())}, 'secret', algorithm='HS256')
+            token = jwt.encode({'user': user.email, 'hash': str(datetime.now())}, JWT_SECRET, algorithm='HS256')
 
             # Save the token to redis
-            save_user_token_to_redis(user, token)
+            save_user_token_to_redis(token)
 
             # Return the success, and the token itself
             return JsonResponse({'token': token}, status=status.HTTP_200_OK)
@@ -209,28 +201,31 @@ class RestaurantUserLoginView(views.APIView):
         except ObjectDoesNotExist:
             return JsonResponse({'error': 'User does not exists'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            print(e)
             return JsonResponse({'error': f'{e}'}, status=status.HTTP_400_BAD_REQUEST) 
             
 # Logged
 class RestaurantUserLogged(views.APIView):
+    """
+    Description: check if user is logged
+    """
     permission_classes = [IsLogged]
 
     def post(self, request, format=None):
-        return JsonResponse({'Logged': True}, status=status.HTTP_200_OK)
+        return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
 
 # Logout
 class RestaurantUserLogoutView(views.APIView):
+    """
+    Description: Handles logout in the user flow
+    """
     permission_classes = [IsLogged]
     
     def post(self, request, format=None):
         try:
-            # Get the user from the request
-            user = request.data.get('user')
-
+            token = request.headers.get('token')
             # Delete the token from redis and return success
-            delete_user_token_from_redis(user)
-
-            return JsonResponse({'success': 'Logged out'}, status=status.HTTP_200_OK)
-        
+            delete_token_from_redis(token)
+            return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
         except:
             return JsonResponse({'error': 'Invalid token'}, status=status.HTTP_403_FORBIDDEN)

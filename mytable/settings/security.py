@@ -1,5 +1,6 @@
 # IMPORTING STANDARD LIBRARIES
 import os
+from .admin import BASE_DIR
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECURE_SSL_REDIRECT = eval(os.getenv('SECURE_SSL_REDIRECT', 'False'))
@@ -14,3 +15,8 @@ CSP_SCRIPT_SRC = ("'self'",)
 SECURE_HSTS_SECONDS = eval(os.getenv('SECURE_HSTS_SECONDS', '0'))
 SECURE_HSTS_INCLUDE_SUBDOMAINS = eval(os.getenv('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'False'))
 SECURE_HSTS_PRELOAD = eval(os.getenv('SECURE_HSTS_PRELOAD', 'False'))
+
+# AUTHENTICATION
+JWT_SECRET = ''
+with open(os.path.join(BASE_DIR, "jwt_secret.txt")) as f:
+    JWT_SECRET = f.read().strip()

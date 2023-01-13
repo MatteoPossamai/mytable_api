@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-from .tasks import save_user_token_to_redis, is_token_valid, delete_user_token_from_redis
+from .tasks import is_token_valid
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
@@ -22,12 +22,11 @@ class IsLogged(permissions.BasePermission):
     """
     Custom permission to only allow logged users to access the API.
     """
+    message = {'error': 'Authorization denied'}
 
     def has_permission(self, request, view):
-        # Read in header the token and user, and if it corresponds, 
-        # return True, else return False
+        """
+        Description: Check if the user is logged by checking the token in headers
+        """
         token = request.headers.get('token')
-        user = request.data.get('user')
-        if user is None or token is None:
-            return False
-        return is_token_valid(request.headers.get('token'), request.data.get('user'))
+        return token is not None and is_token_valid(token)
