@@ -3,15 +3,28 @@ from rest_framework import status
 
 from restaurant.models.category import Category
 from restaurant.models.restaurant import Restaurant
+from accounts.models import RestaurantUser
 
 class CategoryCreateTest(APITestCase):
-    
     def setUp(self):
+        self.data = {
+            'username': 'test',
+            'email': 'test@test.com',
+            'password': 'password123'
+        }
+        response = self.client.post('/api/v1/restaurant_user/signup/', self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        self.token = response.json().get('token')
+
+        self.user = RestaurantUser.objects.get(username='test')
+
         self.restaurant = Restaurant.objects.create(
             name="test",
             plan={},
             location="test",
             phone="test",
+            owner=self.user,
         )
         self.identificator = self.restaurant.id
 
@@ -24,7 +37,7 @@ class CategoryCreateTest(APITestCase):
             "restaurant": self.identificator,
             "description": "test"
         }
-        response = self.client.post('/api/v1/category/create/', data, format='json')
+        response = self.client.post('/api/v1/category/create/', data, format='json', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Category.objects.count(), 1)
         self.assertEqual(Category.objects.get().name, 'test')
@@ -42,8 +55,8 @@ class CategoryCreateTest(APITestCase):
 
         for i in range(number_of_categories):
             data["name"] = f"test{i}"
-            response = self.client.post('/api/v1/category/create/', data, format='json')
-            identifier = response.data['id']
+            response = self.client.post('/api/v1/category/create/', data, format='json', HTTP_TOKEN=self.token)
+            identifier = response.json().get('id')
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
             self.assertEqual(Category.objects.count(), i+1)
             self.assertEqual(Category.objects.get(id=identifier).name, f'test{i}')
@@ -54,7 +67,7 @@ class CategoryCreateTest(APITestCase):
             "isActive": True,
             "description": "test"
         }
-        response = self.client.post('/api/v1/category/create/', data, format='json')
+        response = self.client.post('/api/v1/category/create/', data, format='json', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_category_no_number(self):
@@ -63,7 +76,7 @@ class CategoryCreateTest(APITestCase):
             "isActive": True,
             "description": "test"
         }
-        response = self.client.post('/api/v1/category/create/', data, format='json')
+        response = self.client.post('/api/v1/category/create/', data, format='json', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_category_no_isActive(self):
@@ -72,7 +85,7 @@ class CategoryCreateTest(APITestCase):
             "number": 1,
             "description": "test"
         }
-        response = self.client.post('/api/v1/category/create/', data, format='json')
+        response = self.client.post('/api/v1/category/create/', data, format='json', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_category_no_description(self):
@@ -81,7 +94,7 @@ class CategoryCreateTest(APITestCase):
             "number": 1,
             "isActive": True,
         }
-        response = self.client.post('/api/v1/category/create/', data, format='json')
+        response = self.client.post('/api/v1/category/create/', data, format='json', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_category_bad_number_type(self):
@@ -92,6 +105,11 @@ class CategoryCreateTest(APITestCase):
             "restaurant": self.identificator,
             "description": "test"
         }
-        response = self.client.post('/api/v1/category/create/', data, format='json')
+        response = self.client.post('/api/v1/category/create/', data, format='json', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Category.objects.count(), 1)
+
+    def test_create_category_no_auth(self):
+        response = self.client.post('/api/v1/category/create/', {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        

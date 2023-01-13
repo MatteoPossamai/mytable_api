@@ -5,6 +5,17 @@ from restaurant.models.restaurant import Restaurant
 
 class RestaurantCreateTest(APITestCase):
 
+    def setUp(self):
+        self.data = {
+            'username': 'test',
+            'email': 'test@test.com',
+            'password': 'password123'
+        }
+        response = self.client.post('/api/v1/restaurant_user/signup/', self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        self.token = response.json().get('token')
+
     def test_restaurant_create(self):
         data = {
             "name": "test",
@@ -13,10 +24,21 @@ class RestaurantCreateTest(APITestCase):
             "phone": "test",
             "description": "test"
         }
-        response = self.client.post('/api/v1/restaurant/create/', data, format='json')
+        
+
+        response = self.client.post('/api/v1/restaurant/create/', data, format='json', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Restaurant.objects.count(), 1)
         self.assertEqual(Restaurant.objects.get().name, 'test')
+
+        self.assertEqual(response.json().get('name'), 'test')
+        self.assertEqual(response.json().get('plan'), {})
+        self.assertEqual(response.json().get('location'), 'test')
+        self.assertEqual(response.json().get('phone'), 'test')
+        self.assertEqual(response.json().get('description'), 'test')
+        self.assertEqual(response.json().get('payment_method'), None)
+        self.assertEqual(response.json().get('licence_expiration'), None)
+        self.assertEqual(response.json().get('owner'), 'test@test.com')
 
     def test_restaurant_create_without_name(self):
         data = {
@@ -25,7 +47,7 @@ class RestaurantCreateTest(APITestCase):
             "phone": "test",
             "description": "test"
         }
-        response = self.client.post('/api/v1/restaurant/create/', data, format='json')
+        response = self.client.post('/api/v1/restaurant/create/', data, format='json', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_restaurant_create_without_plan(self):
@@ -35,7 +57,7 @@ class RestaurantCreateTest(APITestCase):
             "phone": "test",
             "description": "test"
         }
-        response = self.client.post('/api/v1/restaurant/create/', data, format='json')
+        response = self.client.post('/api/v1/restaurant/create/', data, format='json', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_restaurant_create_without_location(self):
@@ -45,7 +67,7 @@ class RestaurantCreateTest(APITestCase):
             "phone": "test",
             "description": "test"
         }
-        response = self.client.post('/api/v1/restaurant/create/', data, format='json')
+        response = self.client.post('/api/v1/restaurant/create/', data, format='json', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_restaurant_create_without_phone(self):
@@ -55,7 +77,7 @@ class RestaurantCreateTest(APITestCase):
             "location": "test",
             "description": "test"
         }
-        response = self.client.post('/api/v1/restaurant/create/', data, format='json')
+        response = self.client.post('/api/v1/restaurant/create/', data, format='json', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_restaurant_create_without_description(self):
@@ -65,7 +87,7 @@ class RestaurantCreateTest(APITestCase):
             "location": "test",
             "phone": "test"
         }
-        response = self.client.post('/api/v1/restaurant/create/', data, format='json')
+        response = self.client.post('/api/v1/restaurant/create/', data, format='json', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_restaurant_create_multiple_instance(self):
@@ -79,6 +101,17 @@ class RestaurantCreateTest(APITestCase):
         i = 0
         for i in range(10):
             data['name'] = 'test' + str(i)
-            response = self.client.post('/api/v1/restaurant/create/', data, format='json')
+            response = self.client.post('/api/v1/restaurant/create/', data, format='json', HTTP_TOKEN=self.token)
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Restaurant.objects.count(), 10)
+
+    def test_restaurant_create_no_auth(self):
+        data = {
+            "name": "test",
+            "plan": {},
+            "location": "test",
+            "phone": "test",
+            "description": "test"
+        }
+        response = self.client.post('/api/v1/restaurant/create/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

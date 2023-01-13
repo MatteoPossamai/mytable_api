@@ -39,3 +39,16 @@ def is_token_owner(token: str, owner: str) -> bool:
     except Exception as e:
         return False
     
+@shared_task
+def save_object_to_cache(key: str, value: str) -> None:
+    """
+    Description: Save the object to cache
+    """
+    cache.set(key, value, timeout=int(CACHE_TTL_OBJECT))
+
+@shared_task
+def get_object_from_cache(key: str) -> str:
+    """
+    Description: Get the object from cache
+    """
+    return cache.get(key)

@@ -1,14 +1,23 @@
 from rest_framework import generics, status, views
-from rest_framework.response import Response
+from django.http.response import JsonResponse
 
 from ..models.item import Item
 from ..serializers.item import ItemSerializer
 
+from utilities import is_jsonable, IsOwnerOrReadOnly, IsLogged, save_object_to_cache, get_object_from_cache
+
 # CREATE
 # Create the item
-class ItemCreateView(generics.CreateAPIView):
-    queryset = Item.objects.all()
-    serializer_class = ItemSerializer
+class ItemCreateView(views.APIView):
+    permission_classes = [IsLogged]
+    
+    def post(self, request, format=None):
+        serializer = ItemSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            save_object_to_cache('item_' + str(serializer.data['id']), serializer.data)
+            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # READ
 # Get the item list
@@ -41,10 +50,10 @@ class ItemPutView(views.APIView):
             instance.isActive = item['isActive']
             instance.save()
         except Item.DoesNotExist:
-            return Response({'error': 'Item does not exist'}, status=status.HTTP_404_NOT_FOUND)
+            return JsonResponse({'error': 'Item does not exist'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'success': 'Item updated'}, status=status.HTTP_200_OK)
+            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse({'success': 'Item updated'}, status=status.HTTP_200_OK)
 
 class ItemsChangeNumberView(views.APIView):
     def put(self, request, format=None):
@@ -55,8 +64,8 @@ class ItemsChangeNumberView(views.APIView):
                 instance.number = item['number']
                 instance.save()
         except:
-            return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'success': 'Number changed'}, status=status.HTTP_200_OK)
+            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse({'success': 'Number changed'}, status=status.HTTP_200_OK)
         
 
 class ItemsChangeActiveView(views.APIView):
@@ -68,8 +77,8 @@ class ItemsChangeActiveView(views.APIView):
                 instance.isActive = item['isActive']
                 instance.save()
         except:
-            return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
-        return Response({'success': 'Active changed'}, status=status.HTTP_200_OK)
+            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse({'success': 'Active changed'}, status=status.HTTP_200_OK)
 
 
 # DELETE
@@ -77,3 +86,5 @@ class ItemsChangeActiveView(views.APIView):
 class ItemDeleteView(generics.DestroyAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
+    permission_classes = [IsLogged, IsOwnerOrReadOnly]
+    

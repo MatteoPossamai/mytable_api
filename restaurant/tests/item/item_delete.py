@@ -4,15 +4,29 @@ from rest_framework import status
 from restaurant.models.category import Category
 from restaurant.models.item import Item
 from restaurant.models.restaurant import Restaurant
+from accounts.models import RestaurantUser
 
 class ItemDeleteTest(APITestCase):
 
     def setUp(self):
+        self.data = {
+            'username': 'test',
+            'email': 'test@test.com',
+            'password': 'password123'
+        }
+        response = self.client.post('/api/v1/restaurant_user/signup/', self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        self.token = response.json().get('token')
+
+        self.user = RestaurantUser.objects.get(username='test')
+
         self.restaurant = Restaurant.objects.create(
             name="test",
             plan={},
             location="test",
             phone="test",
+            owner=self.user,
         )
         self.id = self.restaurant.id
         self.category = Category.objects.create(

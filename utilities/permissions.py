@@ -1,11 +1,14 @@
 from rest_framework import permissions
+import jwt
 
 from .tasks import is_token_valid
+from mytable.settings import JWT_SECRET
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow owners of an object to edit it.
     """
+    message = {'error': 'You cannot access this resource'}
 
     def has_object_permission(self, request, view, obj):
         # Read permissions are allowed to any request,
@@ -13,10 +16,10 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
 
-        # USE CELERY TO CHECK IF LOGGED AND IS THE CORRECT USER
-
-        # Write permissions are only allowed to the owner of the snippet.
-        return obj.owner == request.user
+        token = request.headers.get('token')
+        print(type(obj))
+        decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+        return decoded['user'] == obj.owner.email
 
 class IsLogged(permissions.BasePermission):
     """
