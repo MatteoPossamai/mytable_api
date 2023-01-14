@@ -2,6 +2,8 @@ from rest_framework import generics, status, views
 from django.http.response import JsonResponse
 
 from ..models.item import Item
+from ..models.category import Category
+from ..models.restaurant import Restaurant
 from ..serializers.item import ItemSerializer
 
 from utilities import is_jsonable, IsOwnerOrReadOnly, IsLogged, save_object_to_cache, get_object_from_cache
@@ -25,14 +27,56 @@ class ItemGetAllView(generics.ListAPIView):
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
 
-class ItemGetAllActiveView(generics.ListAPIView):
-    queryset = Item.objects.filter(isActive=True)
-    serializer_class = ItemSerializer
-
 # Get single item
-class ItemGetView(generics.RetrieveAPIView):
-    queryset = Item.objects.all()
-    serializer_class = ItemSerializer
+class ItemGetView(views.APIView):
+    permission_classes = [IsLogged, IsOwnerOrReadOnly]
+
+    def get(self, request, pk, format=None):
+        try:
+            item = get_object_from_cache('item_' + str(pk))
+            if item is None:
+                item = Item.objects.get(id=pk)
+                item = ItemSerializer(item).data
+                save_object_to_cache('item_' + str(pk), item)
+            return JsonResponse(item, status=status.HTTP_200_OK)
+
+        except Item.DoesNotExist:
+            return JsonResponse({'error': 'Item does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        
+        except:
+            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
+
+class ItemGetByRestaurantView(views.APIView):
+    permission_classes = [IsLogged, IsOwnerOrReadOnly]
+
+    def get(self, request, pk, format=None):
+        try: 
+            restaurant_item = get_object_from_cache(f'item_a_r_{pk}')
+            if restaurant_item is not None:
+                print('from cache')
+                return JsonResponse(restaurant_item, status=status.HTTP_200_OK, safe=False)
+
+            restaurant_item = []
+            items = Item.objects.filter(restaurant=pk)
+            for item in items:
+                item = ItemSerializer(item).data
+                restaurant_item.append(item)
+                save_object_to_cache(f'item_a_r_{pk}', {'items' : restaurant_item})
+            return JsonResponse({'items' : restaurant_item}, status=status.HTTP_200_OK, safe=False)
+
+        except Restaurant.DoesNotExist:
+            return JsonResponse({'error': 'Restaurant does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
+
+class ItemGetByRestaurantActiveView(views.APIView):
+    pass
+
+class ItemGetByCategoryView(views.APIView):
+    pass
+
+class ItemGetByCategoryActiveView(views.APIView):
+    pass
 
 # UPDATE
 # Retrieve the item

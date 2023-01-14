@@ -40,7 +40,7 @@ class CategoryGetAllRestaurant(views.APIView):
                 serialized = CategorySerializer(category)
                 categories.append(serialized.data)
             
-            save_object_to_cache(f'categories_a_r_{pk}', categories)
+            save_object_to_cache(f'categories_a_r_{pk}', {'categories': categories})
             
             return JsonResponse({'categories': categories}, status=status.HTTP_200_OK, safe=False)
         except Exception as e:
@@ -76,13 +76,14 @@ class CategoryGetView(views.APIView):
             category = get_object_from_cache('category_' + str(pk))
             if category is None:
                 category = Category.objects.get(id=pk)
+                category = CategorySerializer(category).data
                 save_object_to_cache('category_' + str(pk), category)
             return JsonResponse(category, status=status.HTTP_200_OK)
 
         except Category.DoesNotExist:
             return JsonResponse({'error': 'Category does not exist'}, status=status.HTTP_404_NOT_FOUND)
         
-        except:
+        except Exception as e:
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
 # UPDATE

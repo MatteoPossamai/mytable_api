@@ -3,9 +3,10 @@ from django.urls import path, include
 from .views import RestaurantCreateView, RestaurantGetAllView, RestaurantGetView, \
     RestaurantPutView, RestaurantDeleteView, ItemCreateView, ItemGetAllView, ItemGetView, \
     ItemPutView, ItemDeleteView, CategoryCreateView, CategoryGetAllView, CategoryGetView, \
-    CategoryPutView, CategoryDeleteView, CategoryGetAllActiveView, ItemGetAllActiveView, \
+    CategoryPutView, CategoryDeleteView, CategoryGetAllActiveView, \
     ItemsChangeNumberView, CategoriesChangeNumberView, ItemsChangeActiveView,  \
-    CategoriesChangeActiveView, RestaurantChangePlan, CategoryGetAllRestaurant, CategoriesBulkUpdate
+    CategoriesChangeActiveView, RestaurantChangePlan, CategoryGetAllRestaurant, CategoriesBulkUpdate, \
+    ItemGetByRestaurantView, ItemGetByRestaurantActiveView, ItemGetByCategoryView, ItemGetByCategoryActiveView
     
 
 current_version = 'v1'
@@ -34,8 +35,11 @@ item_urlpatterns = [
     path('create/', ItemCreateView.as_view(), name='item-create'),
     # Read
     path('', ItemGetAllView.as_view(), name='item-get-all'),
-    path('active/', ItemGetAllActiveView.as_view(), name='item-get-all-active'),
     path('<int:pk>/', ItemGetView.as_view(), name='item-get'),
+    path('restaurant_item/<int:pk>/', ItemGetByRestaurantView.as_view(), name='item-get-by-restaurant'),
+    path('restaurant_item/active/<int:pk>/', ItemGetByRestaurantActiveView.as_view(), name='item-get-by-restaurant-active'),
+    path('category_item/<int:pk>/', ItemGetByCategoryView.as_view(), name='item-get-by-category'),
+    path('category_item/active/<int:pk>/', ItemGetByCategoryActiveView.as_view(), name='item-get-by-category-active'),    
     # Update
     path('put/<int:pk>/', ItemPutView.as_view(), name='item-put'),
     path('change-number/', ItemsChangeNumberView.as_view(), name='item-change-number'),
