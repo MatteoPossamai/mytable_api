@@ -56,3 +56,10 @@ def get_object_from_cache(key: str) -> str:
         cache.expire(key, NEW_OBJECT_TTL)
 
     return cache.get(key)
+
+@shared_task
+def delete_object_from_cache(key: str) -> None:
+    """
+    Description: Delete the object from cache
+    """
+    cache.delete(key)

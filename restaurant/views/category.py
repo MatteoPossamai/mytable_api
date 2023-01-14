@@ -4,7 +4,7 @@ from django.http.response import JsonResponse
 from ..models.category import Category, Restaurant
 from ..serializers.category import CategorySerializer
 
-from utilities import IsOwnerOrReadOnly, IsLogged, save_object_to_cache, get_object_from_cache
+from utilities import IsOwnerOrReadOnly, IsLogged, save_object_to_cache, get_object_from_cache, delete_object_from_cache
 
 # CREATE
 # Create the category
@@ -32,7 +32,7 @@ class CategoryGetAllRestaurant(views.APIView):
         try:  
             all_categories = get_object_from_cache(f'categories_a_r_{pk}')
             if all_categories is not None:
-                return JsonResponse({"categories": all_categories}, status=status.HTTP_200_OK)
+                return JsonResponse(all_categories, status=status.HTTP_200_OK)
             
             categories = []
             restaurant = Restaurant.objects.get(id=pk)
@@ -44,7 +44,6 @@ class CategoryGetAllRestaurant(views.APIView):
             
             return JsonResponse({'categories': categories}, status=status.HTTP_200_OK, safe=False)
         except Exception as e:
-            print(e)
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
 class CategoryGetAllActiveView(views.APIView):
@@ -54,7 +53,7 @@ class CategoryGetAllActiveView(views.APIView):
         try:
             all_actives = get_object_from_cache(f'categories_a_a_{pk}')
             if all_actives is not None:
-                return JsonResponse({"categories": all_actives}, status=status.HTTP_200_OK)
+                return JsonResponse(all_actives, status=status.HTTP_200_OK)
             categories = []
             restaurant = Restaurant.objects.get(id=pk)
             for category in restaurant.category_set.all():
@@ -66,7 +65,6 @@ class CategoryGetAllActiveView(views.APIView):
             
             return JsonResponse({'categories': categories}, status=status.HTTP_200_OK, safe=False)
         except Exception as e:
-            print(e)
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
 # Get single category
@@ -89,33 +87,134 @@ class CategoryGetView(views.APIView):
 
 # UPDATE
 # Retrieve the category
-class CategoryPutView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategorySerializer
+class CategoryPutView(views.APIView):
+    permission_classes = [IsLogged, IsOwnerOrReadOnly]
+
+    def put(self, request, pk, format=None):
+        try:
+            category = Category.objects.get(id=pk)
+            serializer = CategorySerializer(category, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                save_object_to_cache('category_' + str(pk), serializer.data)
+                return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+            return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Category.DoesNotExist:
+            return JsonResponse({'error': 'Category does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        except:
+            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
 class CategoriesChangeNumberView(views.APIView):
+    permission_classes = [IsLogged, IsOwnerOrReadOnly]
+
     def put(self, request, format=None):
         try:
             categories = request.data.get('categories')
+            restaurant_pk = categories[0]['restaurant']
             for category in categories:
+                restaurant_id = category['restaurant']
+                if restaurant_id != restaurant_pk:
+                    return JsonResponse({'error': 'Cannot modify from different restaurant'},
+                     status=status.HTTP_400_BAD_REQUEST)
+
                 instance = Category.objects.get(id=category['id'])
                 instance.number = category['number']
+                ser = CategorySerializer(instance)
+
+                # Change the eventual cached category
+                save_object_to_cache('category_' + str(category['id']), ser)
+
                 instance.save()
-        except:
+
+            categories = []
+            active = []
+            restaurant = Restaurant.objects.get(id=restaurant_pk)
+            for category in restaurant.category_set.all():
+                serialized = CategorySerializer(category)
+                categories.append(serialized.data)
+                if category.isActive:                    
+                    active.append(serialized.data)
+
+            save_object_to_cache(f'categories_a_a_{restaurant_pk}' , {'categories': active})
+            save_object_to_cache(f'categories_a_r_{restaurant_pk}' , {'categories': categories})
+        except Exception as e:
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
         return JsonResponse({'success': 'Number changed'}, status=status.HTTP_200_OK)
 
 class CategoriesChangeActiveView(views.APIView):
+    permission_classes = [IsLogged, IsOwnerOrReadOnly]
+
     def put(self, request, format=None):
         try:
             categories = request.data.get('categories')
+            restaurant_pk = categories[0]['restaurant']
             for category in categories:
+                restaurant_id = category['restaurant']
+                if restaurant_id != restaurant_pk:
+                    return JsonResponse({'error': 'Cannot modify from different restaurant'},
+                     status=status.HTTP_400_BAD_REQUEST)
+
                 instance = Category.objects.get(id=category['id'])
                 instance.isActive = category['isActive']
+                ser = CategorySerializer(instance)
+
+                # Change the eventual cached category
+                save_object_to_cache('category_' + str(category['id']), ser)
+
                 instance.save()
-        except:
+
+            categories = []
+            active = []
+            restaurant = Restaurant.objects.get(id=restaurant_pk)
+            for category in restaurant.category_set.all():
+                serialized = CategorySerializer(category)
+                categories.append(serialized.data)
+                if category.isActive:                    
+                    active.append(serialized.data)
+
+            save_object_to_cache(f'categories_a_a_{restaurant_pk}' , {'categories': active})
+            save_object_to_cache(f'categories_a_r_{restaurant_pk}' , {'categories': categories})
+        except Exception as e:
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
-        return JsonResponse({'success': 'Active changed'}, status=status.HTTP_200_OK)
+        return JsonResponse({'success': 'Number changed'}, status=status.HTTP_200_OK)
+
+class CategoriesBulkUpdate(views.APIView):
+    permission_classes = [IsLogged, IsOwnerOrReadOnly]
+
+    def put(self, request, format=None):
+        try:
+            categories = request.data.get('categories')
+            restaurant_pk = categories[0]['restaurant']
+            for category in categories:
+                restaurant_id = category['restaurant']
+                if restaurant_id != restaurant_pk:
+                    return JsonResponse({'error': 'Cannot modify from different restaurant'},
+                     status=status.HTTP_400_BAD_REQUEST)
+
+                instance = Category.objects.get(id=category['id'])
+                instance.name = category['name']
+                instance.number = category['number']
+                instance.isActive = category['isActive']
+                ser = CategorySerializer(instance)
+
+                # Change the eventual cached category
+                save_object_to_cache('category_' + str(category['id']), ser)
+
+                instance.save()
+
+            categories = []
+            active = []
+            restaurant = Restaurant.objects.get(id=restaurant_pk)
+            for category in restaurant.category_set.all():
+                serialized = CategorySerializer(category)
+                categories.append(serialized.data)
+                if category.isActive:                    
+                    active.append(serialized.data)
+
+        except Exception as e:
+            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse({'success': 'Number changed'}, status=status.HTTP_200_OK)
 
 # DELETE
 # Delete the category
