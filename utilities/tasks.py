@@ -5,7 +5,7 @@ from django.core.cache import cache
 from celery import shared_task
 import jwt
 
-from mytable.settings import CACHE_TTL_USER, CACHE_TTL_OBJECT, JWT_SECRET
+from mytable.settings import CACHE_TTL_USER, CACHE_TTL_OBJECT, NEW_OBJECT_TTL, JWT_SECRET
 
 @shared_task
 def save_user_token_to_redis(token: str) -> None:
@@ -51,4 +51,8 @@ def get_object_from_cache(key: str) -> str:
     """
     Description: Get the object from cache
     """
+    cached = cache.get(key)
+    if cached is not None and cache.ttl(key) < 60 * 60 * 1:
+        cache.expire(key, NEW_OBJECT_TTL)
+
     return cache.get(key)

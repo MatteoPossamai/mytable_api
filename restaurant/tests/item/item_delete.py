@@ -50,25 +50,29 @@ class ItemDeleteTest(APITestCase):
         )
         self.item_id = self.item.id
 
-    def test_restaurant_delete(self):
-        response = self.client.delete(f'/api/v1/item/delete/{self.item_id}/')
+    def test_item_delete(self):
+        response = self.client.delete(f'/api/v1/item/delete/{self.item_id}/', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Item.objects.count(), 0)
 
-    def test_restaurant_delete_no_id(self):
-        response = self.client.delete('/api/v1/item/delete/0/')
+    def test_item_delete_no_id(self):
+        response = self.client.delete('/api/v1/item/delete/0/', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(Item.objects.count(), 1)
 
-    def test_restaurant_delete_wrong_id(self):
-        response = self.client.delete('/api/v1/item/delete/999/')
+    def test_item_delete_wrong_id(self):
+        response = self.client.delete('/api/v1/item/delete/999/', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(Item.objects.count(), 1)
 
-    def test_restaurant_delete_multiple_single(self):
-        response = self.client.delete(f'/api/v1/item/delete/{self.item_id}/')
+    def test_item_delete_multiple_single(self):
+        response = self.client.delete(f'/api/v1/item/delete/{self.item_id}/', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Item.objects.count(), 0)
-        response = self.client.delete(f'/api/v1/item/delete/{self.item_id}/')
+        response = self.client.delete(f'/api/v1/item/delete/{self.item_id}/', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(Item.objects.count(), 0)
+
+    def test_item_delete_no_auth(self):
+        response = self.client.delete(f'/api/v1/item/delete/{self.item_id}/')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

@@ -5,7 +5,7 @@ from .views import RestaurantCreateView, RestaurantGetAllView, RestaurantGetView
     ItemPutView, ItemDeleteView, CategoryCreateView, CategoryGetAllView, CategoryGetView, \
     CategoryPutView, CategoryDeleteView, CategoryGetAllActiveView, ItemGetAllActiveView, \
     ItemsChangeNumberView, CategoriesChangeNumberView, ItemsChangeActiveView,  \
-    CategoriesChangeActiveView, RestaurantChangePlan
+    CategoriesChangeActiveView, RestaurantChangePlan, CategoryGetAllRestaurant
     
 
 current_version = 'v1'
@@ -16,7 +16,8 @@ category_urlpatterns = [
     path('create/', CategoryCreateView.as_view(), name='category_create'),
     # Read
     path('', CategoryGetAllView.as_view(), name='category_get_all'),
-    path('active/', CategoryGetAllActiveView.as_view(), name='category_get_all_active'),
+    path('restaurant_category/<int:pk>/', CategoryGetAllRestaurant.as_view(), name='category_get_all_restaurant'),
+    path('restaurant_category/active/<int:pk>/', CategoryGetAllActiveView.as_view(), name='category_get_all_active'),
     path('<int:pk>/', CategoryGetView.as_view(), name='category_get'),
     # Update
     path('put/<int:pk>/', CategoryPutView.as_view(), name='category_put'),

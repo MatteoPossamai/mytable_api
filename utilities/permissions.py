@@ -2,6 +2,7 @@ from rest_framework import permissions
 import jwt
 
 from .tasks import is_token_valid
+from restaurant.models import Restaurant, Category, Item
 from mytable.settings import JWT_SECRET
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
@@ -17,9 +18,13 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
             return True
 
         token = request.headers.get('token')
-        print(type(obj))
         decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
-        return decoded['user'] == obj.owner.email
+        if isinstance(obj, Restaurant):
+            return decoded['user'] == obj.owner.email
+        elif isinstance(obj, Category):
+            return decoded['user'] == obj.restaurant.owner.email
+        elif isinstance(obj, Item):
+            return decoded['user'] == obj.category.restaurant.owner.email
 
 class IsLogged(permissions.BasePermission):
     """

@@ -68,3 +68,9 @@ class CategoryDeleteTest(APITestCase):
     def test_restaurant_delete_wrong_id(self):
         response = self.client.delete('/api/v1/category/delete/999/', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_restaurant_delete_no_token(self):
+        category = Category.objects.get(name="test")
+        identifier = category.id
+        response = self.client.delete(f'/api/v1/category/delete/{identifier}/')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

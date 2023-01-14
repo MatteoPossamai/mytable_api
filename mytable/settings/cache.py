@@ -10,6 +10,7 @@ REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 # TTL SETTINGS
 CACHE_TTL_USER = os.getenv("CACHE_TTL_USER", 60 * 60 * 24 * 7)  # 7 days
 CACHE_TTL_OBJECT = os.getenv("CACHE_TTL_OBJECT", 60 * 60 * 3)  # 3 hours
+NEW_OBJECT_TTL = os.getenv("NEW_OBJECT_TTL", 60 * 60 * 1)  # 1 hour
 
 CACHES = {
     "default": {
