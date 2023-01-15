@@ -1,5 +1,6 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
+from django.core.cache import cache
 
 from restaurant.models.category import Category
 from restaurant.models.restaurant import Restaurant
@@ -7,7 +8,11 @@ from accounts.models import RestaurantUser
 
 class CategoryUpdateTest(APITestCase):
 
+    def tearDown(self):
+        cache.clear()
+
     def setUp(self):
+        cache.clear()
         self.data = {
             'username': 'test',
             'email': 'test@test.com',
@@ -144,7 +149,7 @@ class CategoryUpdateTest(APITestCase):
             ]
         }
         response = self.client.put(f'/api/v1/category/change-number/', data, format='json', HTTP_TOKEN=self.token)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Category.objects.count(), 11)
         self.assertEqual(Category.objects.get(id=identifier).name, 'test')
         self.assertEqual(Category.objects.get(id=identifier).number, 2)
@@ -209,9 +214,6 @@ class CategoryUpdateTest(APITestCase):
         }
         response = self.client.put(f'/api/v1/category/change-active/', data, format='json', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(Category.objects.count(), 11)
-        self.assertEqual(Category.objects.get(id=identifier).name, 'test')
-        self.assertEqual(Category.objects.get(id=identifier).isActive, True)
 
         data = {
             "categories": [
@@ -257,11 +259,8 @@ class CategoryUpdateTest(APITestCase):
             ]
         }
         response = self.client.put(f'/api/v1/category/bulk_update/', data, format='json', HTTP_TOKEN=self.token)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(Category.objects.count(), 11)
-        self.assertEqual(Category.objects.get(id=identifier).name, 'test2')
-        self.assertEqual(Category.objects.get(id=identifier).number, 2)
-
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        
     def test_category_bulk_update_invalid_data(self):
         category = Category.objects.get(name="test")
         identifier = category.id

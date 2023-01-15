@@ -141,7 +141,7 @@ class CategoriesChangeNumberView(views.APIView):
             save_object_to_cache(f'categories_a_r_{restaurant_pk}' , {'categories': categories})
         except Exception as e:
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
-        return JsonResponse({'success': 'Number changed'}, status=status.HTTP_200_OK)
+        return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
 
 class CategoriesChangeActiveView(views.APIView):
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
@@ -178,7 +178,7 @@ class CategoriesChangeActiveView(views.APIView):
             save_object_to_cache(f'categories_a_r_{restaurant_pk}' , {'categories': categories})
         except Exception as e:
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
-        return JsonResponse({'success': 'Number changed'}, status=status.HTTP_200_OK)
+        return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
 
 class CategoriesBulkUpdate(views.APIView):
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
@@ -215,7 +215,7 @@ class CategoriesBulkUpdate(views.APIView):
 
         except Exception as e:
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
-        return JsonResponse({'success': 'Number changed'}, status=status.HTTP_200_OK)
+        return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
 
 # DELETE
 # Delete the category

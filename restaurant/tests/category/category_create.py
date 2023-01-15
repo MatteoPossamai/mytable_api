@@ -1,12 +1,21 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
+from django.core.cache import cache
 
 from restaurant.models.category import Category
 from restaurant.models.restaurant import Restaurant
 from accounts.models import RestaurantUser
 
 class CategoryCreateTest(APITestCase):
+    
+    def tearDown(self):
+        cache.clear()
+        Category.objects.all().delete()
+        Restaurant.objects.all().delete()
+        RestaurantUser.objects.all().delete()
+
     def setUp(self):
+        cache.clear()
         self.data = {
             'username': 'test',
             'email': 'test@test.com',
@@ -41,6 +50,12 @@ class CategoryCreateTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Category.objects.count(), 1)
         self.assertEqual(Category.objects.get().name, 'test')
+        data = response.json()
+        self.assertEqual(data['name'], 'test')
+        self.assertEqual(data['number'], 1)
+        self.assertEqual(data['isActive'], True)
+        self.assertEqual(data['description'], 'test')
+        self.assertEqual(data['restaurant'], self.identificator)
 
     def test_create_category_multiple(self):
         i = 0

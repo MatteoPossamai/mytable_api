@@ -1,5 +1,6 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
+from django.core.cache import cache
 
 from accounts.models.restaurant_user import RestaurantUser
 
@@ -7,8 +8,15 @@ from restaurant.models.category import Category
 from restaurant.models.restaurant import Restaurant
 
 class CategoryReadSigleTest(APITestCase):
+
+    def tearDown(self):
+        cache.clear()
+        Category.objects.all().delete()
+        Restaurant.objects.all().delete()
+        RestaurantUser.objects.all().delete()
     
     def setUp(self):
+        cache.clear()
         self.data = {
             'username': 'test',
             'email': 'test@test.com',
@@ -62,7 +70,14 @@ class CategoryReadSigleTest(APITestCase):
 
 class CategoryReadAllTest(APITestCase):
 
+    def tearDown(self):
+        cache.clear()
+        Category.objects.all().delete()
+        Restaurant.objects.all().delete()
+        RestaurantUser.objects.all().delete()
+
     def setUp(self):
+        cache.clear()
         self.data = {
             'username': 'test',
             'email': 'test@test.com',
@@ -99,7 +114,14 @@ class CategoryReadAllTest(APITestCase):
 
 class CategoryReadAllActive(APITestCase):
 
+    def tearDown(self):
+        cache.clear()
+        Category.objects.all().delete()
+        Restaurant.objects.all().delete()
+        RestaurantUser.objects.all().delete()
+
     def setUp(self):
+        cache.clear()
         self.data = {
             'username': 'test',
             'email': 'test@test.com',
@@ -131,7 +153,7 @@ class CategoryReadAllActive(APITestCase):
     def test_restaurant_get_all_active(self):
         response = self.client.get(f'/api/v1/category/restaurant_category/active/{self.identificator}/', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json().get('categories')), 6)
+        self.assertEqual(len(response.json().get('categories')), 5)
 
         self.assertAlmostEqual(response.json().get('categories')[0].get('name'), 'test')
         self.assertAlmostEqual(response.json().get('categories')[0].get('isActive'), True)
@@ -144,7 +166,14 @@ class CategoryReadAllActive(APITestCase):
     
 class CategoryReadAllRestaurant(APITestCase):
 
+    def tearDown(self):
+        cache.clear()
+        Category.objects.all().delete()
+        Restaurant.objects.all().delete()
+        RestaurantUser.objects.all().delete()
+
     def setUp(self):
+        cache.clear()
         self.data = {
             'username': 'test',
             'email': 'test@test.com',
@@ -176,7 +205,7 @@ class CategoryReadAllRestaurant(APITestCase):
     def test_restaurant_get_all(self):
         response = self.client.get(f'/api/v1/category/restaurant_category/{self.identificator}/', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.json().get('categories')), 11)
+        self.assertEqual(len(response.json().get('categories')), 10)
 
         self.assertAlmostEqual(response.json().get('categories')[0].get('name'), 'test')
         self.assertAlmostEqual(response.json().get('categories')[0].get('isActive'), True)

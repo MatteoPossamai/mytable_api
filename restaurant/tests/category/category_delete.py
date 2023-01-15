@@ -1,5 +1,6 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
+from django.core.cache import cache
 
 from restaurant.models.category import Category
 from restaurant.models.restaurant import Restaurant
@@ -7,7 +8,14 @@ from accounts.models import RestaurantUser
 
 class CategoryDeleteTest(APITestCase):
 
+    def tearDown(self):
+        cache.clear()
+        Category.objects.all().delete()
+        Restaurant.objects.all().delete()
+        RestaurantUser.objects.all().delete()
+
     def setUp(self):
+        cache.clear()
         self.data = {
             'username': 'test',
             'email': 'test@test.com',
