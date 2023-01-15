@@ -143,6 +143,8 @@ class ItemGetByCategoryActiveView(views.APIView):
 # UPDATE
 # Retrieve the item
 class ItemPutView(views.APIView):
+    permission_classes = [IsLogged, IsOwnerOrReadOnly]
+
     def put(self, request, pk, format=None):
         try:
             item = request.data
@@ -161,33 +163,129 @@ class ItemPutView(views.APIView):
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
         return JsonResponse({'success': 'Item updated'}, status=status.HTTP_200_OK)
 
-class ItemsChangeNumberView(views.APIView):
-    def put(self, request, format=None):
-        try:
-            items = request.data.get('items')
-            for item in items:
-                instance = Item.objects.get(id=item['id'])
-                instance.number = item['number']
-                instance.save()
-        except:
-            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
-        return JsonResponse({'success': 'Number changed'}, status=status.HTTP_200_OK)
-        
 
 class ItemsChangeActiveView(views.APIView):
+    permission_classes = [IsLogged, IsOwnerOrReadOnly]
+
     def put(self, request, format=None):
         try:
             items = request.data.get('items')
+            category_pk = items[0]['category']
             for item in items:
+                category_id = item['category']
+                if category_id != category_pk:
+                    return JsonResponse({'error': 'Cannot modify elements of different categories'}, status=status.HTTP_400_BAD_REQUEST)
+                
                 instance = Item.objects.get(id=item['id'])
                 instance.isActive = item['isActive']
+
+                ser = ItemSerializer(instance)
+
+                save_object_to_cache(f'item_{item["id"]}', ser.data)
+
                 instance.save()
-        except:
+
+            items = []
+            active = []
+            category = Category.objects.get(id=category_pk)
+            for item in category.item_set.all():
+                item = ItemSerializer(item).data
+                items.append(item)
+                if item['isActive']:
+                    active.append(item)
+
+            save_object_to_cache(f'item_a_ac_{category_pk}', {'items' : active})
+            save_object_to_cache(f'item_a_c_{category_pk}', {'items' : items})
+
+        except Exception as e:
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
         return JsonResponse({'success': 'Active changed'}, status=status.HTTP_200_OK)
 
+
+class ItemsChangeNumberView(views.APIView):
+    permission_classes = [IsLogged, IsOwnerOrReadOnly]
+
+    def put(self, request, format=None):
+        try:
+            items = request.data.get('items')
+            category_pk = items[0]['category']
+
+            for item in items:
+                category_id = item['category']
+                if category_id != category_pk:
+                    return JsonResponse({'error': 'Cannot modify elements of different categories'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                instance = Item.objects.get(id=item['id'])
+                instance.number = item['number']
+
+                ser = ItemSerializer(instance)
+
+                save_object_to_cache(f'item_{item["id"]}', ser.data)
+
+                instance.save()
+
+            items = []
+            active = []
+            category = Category.objects.get(id=category_pk)
+            for item in category.item_set.all():
+                item = ItemSerializer(item).data
+                items.append(item)
+                if item['isActive']:
+                    active.append(item)
+
+            save_object_to_cache(f'item_a_ac_{category_pk}', {'items' : active})
+            save_object_to_cache(f'item_a_c_{category_pk}', {'items' : items})
+        except:
+            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse({'success': 'Number changed'}, status=status.HTTP_200_OK)
+
 class ItemsBulkUpdate(views.APIView):
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
+
+    def put(self, request, format=None):
+        try:
+            items = request.data.get('items')
+            category_pk = items[0]['category']
+
+            restaurant_id = Category.objects.get(id=category_pk).restaurant.id
+
+            for item in items:
+                category_id = item['category']
+                if category_id != category_pk:
+                    return JsonResponse({'error': 'Cannot modify elements of different categories'}, status=status.HTTP_400_BAD_REQUEST)
+                
+                instance = Item.objects.get(id=item['id'])
+                instance.name = item['name']
+                instance.description = item['description']
+                instance.price = item['price']
+                instance.iconId = item['iconId']
+                instance.facts = item['facts']
+                instance.number = item['number']
+                instance.isActive = item['isActive']
+
+                ser = ItemSerializer(instance)
+
+                save_object_to_cache(f'item_{item["id"]}', ser.data)
+
+                instance.save()
+
+            items = []
+            active = []
+            category = Category.objects.get(id=category_pk)
+            for item in category.item_set.all():
+                item = ItemSerializer(item).data
+                items.append(item)
+                if item['isActive']:
+                    active.append(item)
+
+            save_object_to_cache(f'item_a_ac_{category_pk}', {'items' : active})
+            save_object_to_cache(f'item_a_c_{category_pk}', {'items' : items})
+            delete_object_from_cache(f'item_a_r_{restaurant_id}')
+            delete_object_from_cache(f'item_a_a_{restaurant_id}')
+
+        except Exception as e:
+            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse({'success': 'Number changed'}, status=status.HTTP_200_OK)
     
 
 # DELETE
