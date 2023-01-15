@@ -6,7 +6,7 @@ from ..models.category import Category
 from ..models.restaurant import Restaurant
 from ..serializers.item import ItemSerializer
 
-from utilities import is_jsonable, IsOwnerOrReadOnly, IsLogged, save_object_to_cache, get_object_from_cache
+from utilities import is_jsonable, IsOwnerOrReadOnly, IsLogged, save_object_to_cache, get_object_from_cache, delete_object_from_cache
 
 # CREATE
 # Create the item
@@ -18,6 +18,10 @@ class ItemCreateView(views.APIView):
         if serializer.is_valid():
             serializer.save()
             save_object_to_cache('item_' + str(serializer.data['id']), serializer.data)
+            delete_object_from_cache(f'item_a_r_{serializer.data["restaurant"]}')
+            delete_object_from_cache(f'item_a_a_{serializer.data["restaurant"]}')
+            delete_object_from_cache(f'item_a_c_{serializer.data["category"]}')
+            delete_object_from_cache(f'item_a_ac_{serializer.data["category"]}')
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -60,7 +64,7 @@ class ItemGetByRestaurantView(views.APIView):
             for item in items:
                 item = ItemSerializer(item).data
                 restaurant_item.append(item)
-                save_object_to_cache(f'item_a_r_{pk}', {'items' : restaurant_item})
+            save_object_to_cache(f'item_a_r_{pk}', {'items' : restaurant_item})
             return JsonResponse({'items' : restaurant_item}, status=status.HTTP_200_OK, safe=False)
 
         except Restaurant.DoesNotExist:
@@ -69,13 +73,72 @@ class ItemGetByRestaurantView(views.APIView):
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
 class ItemGetByRestaurantActiveView(views.APIView):
-    pass
+    permission_classes = [IsLogged, IsOwnerOrReadOnly]
+
+    def get(self, request, pk, format=None):
+        try: 
+            restaurant_item = get_object_from_cache(f'item_a_a_{pk}')
+            if restaurant_item is not None:
+                return JsonResponse(restaurant_item, status=status.HTTP_200_OK, safe=False)
+
+            restaurant_item = []
+            items = Item.objects.filter(restaurant=pk)
+            for item in items:
+                if item.isActive:
+                    item = ItemSerializer(item).data
+                    restaurant_item.append(item)
+            save_object_to_cache(f'item_a_a_{pk}', {'items' : restaurant_item})
+            return JsonResponse({'items' : restaurant_item}, status=status.HTTP_200_OK, safe=False)
+
+        except Restaurant.DoesNotExist:
+            return JsonResponse({'error': 'Restaurant does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
 class ItemGetByCategoryView(views.APIView):
-    pass
+    permission_classes = [IsLogged, IsOwnerOrReadOnly]
+
+    def get(self, request, pk, format=None):
+        try: 
+            category_item = get_object_from_cache(f'item_a_c_{pk}')
+            if category_item is not None:
+                return JsonResponse(category_item, status=status.HTTP_200_OK)
+
+            category_item = []
+            items = Item.objects.filter(category=pk)
+            for item in items:
+                item = ItemSerializer(item).data
+                category_item.append(item)
+            save_object_to_cache(f'item_a_c_{pk}', {'items' : category_item})
+            return JsonResponse({'items' : category_item}, status=status.HTTP_200_OK)
+
+        except Category.DoesNotExist:
+            return JsonResponse({'error': 'Category does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
 class ItemGetByCategoryActiveView(views.APIView):
-    pass
+    permission_classes = [IsLogged, IsOwnerOrReadOnly]
+
+    def get(self, request, pk, format=None):
+        try: 
+            category_item = get_object_from_cache(f'item_a_ac_{pk}')
+            if category_item is not None:
+                return JsonResponse(category_item, status=status.HTTP_200_OK)
+
+            category_item = []
+            items = Item.objects.filter(category=pk)
+            for item in items:
+                if item.isActive:
+                    item = ItemSerializer(item).data
+                    category_item.append(item)
+            save_object_to_cache(f'item_a_ac_{pk}', {'items' : category_item})
+            return JsonResponse({'items' : category_item}, status=status.HTTP_200_OK)
+
+        except Category.DoesNotExist:
+            return JsonResponse({'error': 'Category does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
 # UPDATE
 # Retrieve the item
@@ -123,6 +186,9 @@ class ItemsChangeActiveView(views.APIView):
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
         return JsonResponse({'success': 'Active changed'}, status=status.HTTP_200_OK)
 
+class ItemsBulkUpdate(views.APIView):
+    permission_classes = [IsLogged, IsOwnerOrReadOnly]
+    
 
 # DELETE
 # Delete the item

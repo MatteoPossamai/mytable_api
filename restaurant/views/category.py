@@ -16,6 +16,8 @@ class CategoryCreateView(views.APIView):
         if serializer.is_valid():
             serializer.save()
             save_object_to_cache('category_' + str(serializer.data['id']), serializer.data)
+            delete_object_from_cache(f'category_a_r_{serializer.data["restaurant"]}')
+            delete_object_from_cache(f'category_a_a_{serializer.data["restaurant"]}')
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -6,8 +6,8 @@ from .views import RestaurantCreateView, RestaurantGetAllView, RestaurantGetView
     CategoryPutView, CategoryDeleteView, CategoryGetAllActiveView, \
     ItemsChangeNumberView, CategoriesChangeNumberView, ItemsChangeActiveView,  \
     CategoriesChangeActiveView, RestaurantChangePlan, CategoryGetAllRestaurant, CategoriesBulkUpdate, \
-    ItemGetByRestaurantView, ItemGetByRestaurantActiveView, ItemGetByCategoryView, ItemGetByCategoryActiveView
-    
+    ItemGetByRestaurantView, ItemGetByRestaurantActiveView, ItemGetByCategoryView, ItemGetByCategoryActiveView, \
+    ItemsBulkUpdate    
 
 current_version = 'v1'
 
@@ -44,6 +44,7 @@ item_urlpatterns = [
     path('put/<int:pk>/', ItemPutView.as_view(), name='item-put'),
     path('change-number/', ItemsChangeNumberView.as_view(), name='item-change-number'),
     path('change-active/', ItemsChangeActiveView.as_view(), name='item-change-active'),
+    path('bulk_update/', ItemsBulkUpdate.as_view(), name='item_bulk_update'),
     # Delete
     path('delete/<int:pk>/', ItemDeleteView.as_view(), name='item-delete'),
 ]
