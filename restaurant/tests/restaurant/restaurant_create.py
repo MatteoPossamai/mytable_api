@@ -1,9 +1,14 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
+from django.core.cache import cache
 
 from restaurant.models.restaurant import Restaurant
 
 class RestaurantCreateTest(APITestCase):
+
+    def tearDown(self):
+        cache.clear()
+        Restaurant.objects.all().delete()
 
     def setUp(self):
         self.data = {

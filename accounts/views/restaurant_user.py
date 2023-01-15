@@ -52,7 +52,7 @@ class RestaurantUserCreateView(views.APIView):
             return JsonResponse({'error': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
-            print(e)
+            
             return JsonResponse({'error': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
 
 # READ
@@ -78,7 +78,7 @@ class RestaurantUserGetView(generics.RetrieveAPIView):
         except ObjectDoesNotExist:
             return JsonResponse({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            print(e)
+            
             return JsonResponse({'error': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
 
 # UPDATE
@@ -130,7 +130,7 @@ class RestaurantUserPutUser(views.APIView):
             return JsonResponse({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
-            print(e)
+            
             return JsonResponse({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
     
 # DELETE
@@ -159,7 +159,7 @@ class RestaurantUserDeleteView(views.APIView):
             return JsonResponse({'error': 'User does not exists'}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
-            print(e)
+            
             return JsonResponse({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
 
 # Login
@@ -201,7 +201,6 @@ class RestaurantUserLoginView(views.APIView):
         except ObjectDoesNotExist:
             return JsonResponse({'error': 'User does not exists'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            print(e)
             return JsonResponse({'error': f'{e}'}, status=status.HTTP_400_BAD_REQUEST) 
             
 # Logged

@@ -53,7 +53,6 @@ class ItemGetByRestaurantView(views.APIView):
         try: 
             restaurant_item = get_object_from_cache(f'item_a_r_{pk}')
             if restaurant_item is not None:
-                print('from cache')
                 return JsonResponse(restaurant_item, status=status.HTTP_200_OK, safe=False)
 
             restaurant_item = []
