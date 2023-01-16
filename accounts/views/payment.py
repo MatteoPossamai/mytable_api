@@ -1,7 +1,9 @@
 from django.http.response import JsonResponse
-from rest_framework import generics, status, views
+from rest_framework import status, views
+from django.shortcuts import redirect
+from django.conf import settings
 
-import os, json
+import json
 import stripe
 
 from mytable.settings import STRIPE_SECRET
@@ -22,19 +24,36 @@ class CreateCheckoutSessionView(views.APIView):
             checkout_session = stripe.checkout.Session.create(
                 line_items=[
                     {
-                        'price': prices.data[0].id,
+                        'price': 'price_1MQyRGEFKQV6TOkkXjmQfDXF',
                         'quantity': 1,
                     },
                 ],
                 mode='subscription',
-                success_url=DOMAIN_URL +
+                success_url=settings.DOMAIN_URL +
                 '?success=true&session_id={CHECKOUT_SESSION_ID}',
-                cancel_url=DOMAIN_URL + '?canceled=true',
+                cancel_url=settings.DOMAIN_URL + '?canceled=true',
             )
-            return redirect(checkout_session.url, code=303)
+            return redirect(checkout_session.url)
         except Exception as e:
-            print(e)
-            return "Server error", 500
+            return JsonResponse(error=str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class CreatePortalSessionView(views.APIView):
+    def post(self, request, format=None):
+        # For demonstration purposes, we're using the Checkout session to retrieve the customer ID.
+        # Typically this is stored alongside the authenticated user in your database.
+        checkout_session_id = request.form.get('session_id')
+        checkout_session = stripe.checkout.Session.retrieve(checkout_session_id)
+
+        # This is the URL to which the customer will be redirected after they are
+        # done managing their billing with the portal.
+        return_url = settings.DOMAIN_URL
+
+        portalSession = stripe.billing_portal.Session.create(
+            customer=checkout_session.customer,
+            return_url=return_url,
+        )
+        return redirect(portalSession.url, code=303)
+
 
 class WebhookView(views.APIView):
 
@@ -77,4 +96,4 @@ class WebhookView(views.APIView):
             # upon your subscription settings. Or if the user cancels it.
             print('Subscription canceled: %s', event.id)
 
-        return jsonify({'status': 'success'})
+        return json.dumps({'status': 'success'})
