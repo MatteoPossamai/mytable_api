@@ -6,10 +6,8 @@ from ..models.restaurant import Restaurant
 from ..serializers.restaurant import RestaurantSerializer
 from accounts.models import RestaurantUser
 
-from utilities import is_jsonable, IsOwnerOrReadOnly, IsLogged, save_object_to_cache, get_object_from_cache
+from utilities import is_jsonable, IsOwnerOrReadOnly, IsLogged
 from mytable.settings import JWT_SECRET
-
-# https://www.youtube.com/watch?v=_nZygPQ3gmo&list=PLBKfJRrwXFBL4ty47nf4LXxvkL7Kf0huF&index=8
 
 # CREATE
 # Create the restaurant
@@ -25,7 +23,6 @@ class RestaurantCreateView(views.APIView):
         serializer.owner = user
         if serializer.is_valid():
             serializer.save(owner=user)
-            save_object_to_cache('restaurant_' + str(serializer.data['id']), serializer.data)
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -37,21 +34,10 @@ class RestaurantGetAllView(generics.ListAPIView):
     permission_classes = [IsOwnerOrReadOnly]
 
 # Get single restaurant
-class RestaurantGetView(views.APIView):
+class RestaurantGetView(generics.RetrieveAPIView):
+    queryset = Restaurant.objects.all()
+    serializer_class = RestaurantSerializer
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
-
-    def get(self, request, pk, format=None):
-        try:
-            id = int(pk)
-            cached = get_object_from_cache('restaurant_' + str(id))
-            if cached:
-                return JsonResponse(cached, status=status.HTTP_200_OK)
-
-            instance = Restaurant.objects.get(id=id)
-            serializer = RestaurantSerializer(instance)
-            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-        except Restaurant.DoesNotExist:
-            return JsonResponse({'error': 'Restaurant does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
 # UPDATE
 # Retrieve the restaurant
@@ -60,6 +46,7 @@ class RestaurantPutView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = RestaurantSerializer
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
+# Change the restaurant plan
 class RestaurantChangePlan(views.APIView):
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
@@ -74,7 +61,6 @@ class RestaurantChangePlan(views.APIView):
             instance.save()
 
             serializer = RestaurantSerializer(instance)
-            save_object_to_cache('restaurant_' + str(serializer.data['id']), serializer.data)
 
         except Restaurant.DoesNotExist:
             return JsonResponse({'error': 'Restaurant does not exist'}, status=status.HTTP_404_NOT_FOUND)

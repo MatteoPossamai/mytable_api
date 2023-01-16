@@ -9,13 +9,6 @@ from accounts.models.restaurant_user import RestaurantUser
 
 class ItemReadSingleTest(APITestCase):
 
-    def tearDown(self):
-        cache.clear()
-        Category.objects.all().delete()
-        Restaurant.objects.all().delete()
-        RestaurantUser.objects.all().delete()
-        Item.objects.all().delete()
-
     def setUp(self):
         self.data = {
             'username': 'test',
@@ -45,7 +38,6 @@ class ItemReadSingleTest(APITestCase):
         )
         self.cat = self.category.id
         self.item = Item.objects.create(
-            restaurant=self.restaurant,
             category=self.category,
             name="test",
             description="test",
@@ -117,7 +109,6 @@ class ItemReadItemMultiple(APITestCase):
 
         for i in range(self.num):
             self.item = Item.objects.create(
-                restaurant=self.restaurant,
                 category=self.category,
                 name="test" + str(i),
                 description="test",
@@ -143,13 +134,6 @@ class ItemReadItemMultiple(APITestCase):
 
 
 class ItemReadByRestaurant(APITestCase):
-
-    def tearDown(self) -> None:
-        cache.clear()
-        Category.objects.all().delete()
-        Restaurant.objects.all().delete()
-        RestaurantUser.objects.all().delete()
-        Item.objects.all().delete()
 
     def setUp(self):
         cache.clear()
@@ -181,7 +165,6 @@ class ItemReadByRestaurant(APITestCase):
         )
         self.cat = self.category.id
         self.item = Item.objects.create(
-            restaurant=self.restaurant,
             category=self.category,
             name="test",
             description="test",
@@ -209,7 +192,6 @@ class ItemReadByRestaurant(APITestCase):
         )
 
         self.item2 = Item.objects.create(
-            restaurant=self.res2,
             category=self.cat2,
             name="test",
             description="test",
@@ -237,7 +219,6 @@ class ItemReadByRestaurant(APITestCase):
         self.assertEqual(data[0]['facts'], {})
 
         data = {
-            "restaurant": self.id,
             "category": self.cat,
             "name": "test23",
             "description": "test23",
@@ -270,13 +251,6 @@ class ItemReadByRestaurant(APITestCase):
 
 class ItemReadByRestaurantActive(APITestCase):
 
-    def tearDown(self) -> None:
-        cache.clear()
-        Category.objects.all().delete()
-        Restaurant.objects.all().delete()
-        RestaurantUser.objects.all().delete()
-        Item.objects.all().delete()
-
     def setUp(self):
         cache.clear()
         self.data = {
@@ -308,7 +282,6 @@ class ItemReadByRestaurantActive(APITestCase):
         self.cat = self.category.id
         for i in range(10):
             self.item = Item.objects.create(
-                restaurant=self.restaurant,
                 category=self.category,
                 name="test",
                 description="test",
@@ -341,13 +314,6 @@ class ItemReadByRestaurantActive(APITestCase):
 
 class ItemReadByCategory(APITestCase):
 
-    def tearDown(self) -> None:
-        cache.clear()
-        Category.objects.all().delete()
-        Restaurant.objects.all().delete()
-        RestaurantUser.objects.all().delete()
-        Item.objects.all().delete()
-
     def setUp(self):
         cache.clear()
         self.data = {
@@ -379,7 +345,6 @@ class ItemReadByCategory(APITestCase):
         self.cat = self.category.id
         for i in range(10):
             self.item = Item.objects.create(
-                restaurant=self.restaurant,
                 category=self.category,
                 name="test",
                 description="test",
@@ -402,7 +367,6 @@ class ItemReadByCategory(APITestCase):
         self.cat2 = self.category2.id
         for i in range(4):
             self.item = Item.objects.create(
-                restaurant=self.restaurant,
                 category=self.category2,
                 name="test",
                 description="test",
@@ -448,13 +412,6 @@ class ItemReadByCategory(APITestCase):
 
 class ItemReadByCategoryActive(APITestCase):
 
-    def tearDown(self) -> None:
-        cache.clear()
-        Category.objects.all().delete()
-        Restaurant.objects.all().delete()
-        RestaurantUser.objects.all().delete()
-        Item.objects.all().delete()
-
     def setUp(self):
         cache.clear()
         self.data = {
@@ -486,7 +443,6 @@ class ItemReadByCategoryActive(APITestCase):
         self.cat = self.category.id
         for i in range(10):
             self.item = Item.objects.create(
-                restaurant=self.restaurant,
                 category=self.category,
                 name="test",
                 description="test",
@@ -509,7 +465,6 @@ class ItemReadByCategoryActive(APITestCase):
         self.cat2 = self.category2.id
         for i in range(4):
             self.item = Item.objects.create(
-                restaurant=self.restaurant,
                 category=self.category2,
                 name="test",
                 description="test",

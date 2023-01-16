@@ -3,9 +3,9 @@ from django.urls import path, include
 from .views import RestaurantCreateView, RestaurantGetAllView, RestaurantGetView, \
     RestaurantPutView, RestaurantDeleteView, ItemCreateView, ItemGetAllView, ItemGetView, \
     ItemPutView, ItemDeleteView, CategoryCreateView, CategoryGetAllView, CategoryGetView, \
-    CategoryPutView, CategoryDeleteView, CategoryGetAllActiveView, \
+    CategoryPutView, CategoryDeleteView, CategoryGetAllActiveByRestaurantView, \
     ItemsChangeNumberView, CategoriesChangeNumberView, ItemsChangeActiveView,  \
-    CategoriesChangeActiveView, RestaurantChangePlan, CategoryGetAllRestaurant, CategoriesBulkUpdate, \
+    CategoriesChangeActiveView, RestaurantChangePlan, CategoryGetAllByRestaurant, CategoriesBulkUpdate, \
     ItemGetByRestaurantView, ItemGetByRestaurantActiveView, ItemGetByCategoryView, ItemGetByCategoryActiveView, \
     ItemsBulkUpdate    
 
@@ -17,8 +17,8 @@ category_urlpatterns = [
     path('create/', CategoryCreateView.as_view(), name='category_create'),
     # Read
     path('', CategoryGetAllView.as_view(), name='category_get_all'),
-    path('restaurant_category/<int:pk>/', CategoryGetAllRestaurant.as_view(), name='category_get_all_restaurant'),
-    path('restaurant_category/active/<int:pk>/', CategoryGetAllActiveView.as_view(), name='category_get_all_active'),
+    path('restaurant_category/<int:pk>/', CategoryGetAllByRestaurant.as_view(), name='category_get_all_restaurant'),
+    path('restaurant_category/active/<int:pk>/', CategoryGetAllActiveByRestaurantView.as_view(), name='category_get_all_active'),
     path('<int:pk>/', CategoryGetView.as_view(), name='category_get'),
     # Update
     path('put/<int:pk>/', CategoryPutView.as_view(), name='category_put'),

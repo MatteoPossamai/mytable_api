@@ -1,10 +1,8 @@
 from django.db import models
 
-from .restaurant import Restaurant
 from .category import Category
 
 class Item(models.Model):
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
@@ -15,4 +13,4 @@ class Item(models.Model):
     facts = models.JSONField()
 
     def __str__(self):
-        return "Item: " + str(self.id) + " - " + self.name + " - " + self.restaurant.name
+        return "Item: " + str(self.id) + " - " + self.name + " - " + str(self.category)

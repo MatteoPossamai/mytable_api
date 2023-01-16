@@ -7,7 +7,6 @@ class ItemSerializer(serializers.ModelSerializer):
         model = Item
         fields = (
             'id',
-            'restaurant',
             'category',
             'name',
             'description',

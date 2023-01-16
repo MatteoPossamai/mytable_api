@@ -46,7 +46,6 @@ class ItemDeleteTest(APITestCase):
         )
         self.cat = self.category.id
         self.item = Item.objects.create(
-            restaurant=self.restaurant,
             category=self.category,
             name="test",
             description="test",

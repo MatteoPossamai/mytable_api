@@ -49,7 +49,6 @@ class ItemCreateTest(APITestCase):
 
     def test_restaurant_create(self):
         data = {
-            "restaurant": self.identificator,
             "category": self.cat,
             "name": "test",
             "description": "test",
@@ -66,7 +65,6 @@ class ItemCreateTest(APITestCase):
 
     def test_restaurant_create_missing(self):
         data = {
-            "restaurant": self.identificator,
             "category": self.cat,
             "name": "test",
             "facts": {}

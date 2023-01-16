@@ -10,13 +10,6 @@ from accounts.models import RestaurantUser
 
 class ItemUpdateTest(APITestCase):
 
-    def tearDown(self):
-        cache.clear()
-        Category.objects.all().delete()
-        Restaurant.objects.all().delete()
-        RestaurantUser.objects.all().delete()
-        Item.objects.all().delete()
-
     def setUp(self):
         self.data = {
             'username': 'test',
@@ -46,7 +39,6 @@ class ItemUpdateTest(APITestCase):
         )
         self.cat = self.category.id
         self.item = Item.objects.create(
-            restaurant=self.restaurant,
             category=self.category,
             name="test",
             description="test",
@@ -115,13 +107,6 @@ class ItemUpdateTest(APITestCase):
 
 class ItemUpdateChangeActiveTest(APITestCase):
 
-    def tearDown(self):
-        cache.clear()
-        Category.objects.all().delete()
-        Restaurant.objects.all().delete()
-        RestaurantUser.objects.all().delete()
-        Item.objects.all().delete()
-
     def setUp(self):
         self.data = {
             'username': 'test',
@@ -151,9 +136,8 @@ class ItemUpdateChangeActiveTest(APITestCase):
         )
         self.cat = self.category.id
 
-        for i in range(0, 10):
+        for _ in range(0, 10):
             self.item = Item.objects.create(
-                restaurant=self.restaurant,
                 category=self.category,
                 name="test",
                 description="test",
@@ -220,13 +204,6 @@ class ItemUpdateChangeActiveTest(APITestCase):
 
 class ItemUpdateChangeNumberTest(APITestCase):
 
-    def tearDown(self):
-        cache.clear()
-        Category.objects.all().delete()
-        Restaurant.objects.all().delete()
-        RestaurantUser.objects.all().delete()
-        Item.objects.all().delete()
-
     def setUp(self):
         self.data = {
             'username': 'test',
@@ -256,7 +233,6 @@ class ItemUpdateChangeNumberTest(APITestCase):
         )
         self.cat = self.category.id
         self.item = Item.objects.create(
-            restaurant=self.restaurant,
             category=self.category,
             name="test",
             description="test",
@@ -323,13 +299,6 @@ class ItemUpdateChangeNumberTest(APITestCase):
 
 class ItemUpdateBulk(APITestCase):
 
-    def tearDown(self):
-        cache.clear()
-        Category.objects.all().delete()
-        Restaurant.objects.all().delete()
-        RestaurantUser.objects.all().delete()
-        Item.objects.all().delete()
-
     def setUp(self):
         self.data = {
             'username': 'test',
@@ -361,7 +330,6 @@ class ItemUpdateBulk(APITestCase):
 
         for i in range(0, 10):
             self.item = Item.objects.create(
-                restaurant=self.restaurant,
                 category=self.category,
                 name="test",
                 description="test",
@@ -406,11 +374,11 @@ class ItemUpdateBulk(APITestCase):
         self.assertEqual(item.id, self.item_id)
         self.assertEqual(item.name, "test2")
 
-    def test_restaurant_update_bulk_not_auth(self):
+    def test_item_update_bulk_not_auth(self):
         response = self.client.put(f'/api/v1/item/bulk_update/', {}, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_restaurant_update_bulk_bad_request(self):
+    def test_item_update_bulk_bad_request(self):
         data = {
             "items": [
                 {
@@ -440,7 +408,7 @@ class ItemUpdateBulk(APITestCase):
         response = self.client.put(f'/api/v1/item/bulk_update/', data, format='json', HTTP_TOKEN=self.token)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_restaurant_update_bulk_different_categories(self):
+    def test_item_update_bulk_different_categories(self):
         data = {
             "items": [
                 {
