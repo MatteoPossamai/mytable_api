@@ -13,7 +13,7 @@ order_urlpatterns = [
     path('create/', OrderCreateView.as_view(), name='order_create'),
     # Read
     path('', OrderGetAllView.as_view(), name='order_get_all'),
-    path('get/<int:pk>/', OrderGetView.as_view(), name='order_get'),
+    path('<int:pk>/', OrderGetView.as_view(), name='order_get'),
     # Update
     path('put/<int:pk>/', OrderPutView.as_view(), name='order_put'),
     path('update/status/<int:pk>/', OrderUpdateStatusView.as_view(), name='order_update_status'),

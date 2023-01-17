@@ -38,3 +38,19 @@ class IsLogged(permissions.BasePermission):
         """
         token = request.headers.get('token')
         return token is not None and is_token_valid(token)
+
+
+class IsRestaurantOwner(permissions.BasePermission):
+    """
+    Custom permission to only allow restaurant owners to access the API.
+    """
+    message = {'error': 'Your restaurant do not own this order'}
+
+    def has_object_permission(self, request, view, obj):
+        """
+        Description: Check if the user is logged by checking the token in headers
+        """
+        token = request.headers.get('token')
+        decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+        user =  decoded['user']
+        return user == obj.restaurant.owner.email

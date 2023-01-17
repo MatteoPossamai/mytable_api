@@ -1,16 +1,20 @@
 from rest_framework import generics, status
-from rest_framework.response import Response
+from django.http.response import JsonResponse
 
 from ..models.order import Order
 from ..serializers.order import OrderSerializer
 
 from ..models.takes import Take
-
+from utilities import IsRestaurantOwner, IsLogged
 from restaurant.models import Item
 
-# CREATE
-# Create the order
+
 class OrderCreateView(generics.ListAPIView):
+    """
+    Description: handles the creation of an order
+    """
+    permission_classes = [IsLogged]
+
     def post(self, request, format=None):
         try:
             # Collection of data from the request
@@ -40,36 +44,47 @@ class OrderCreateView(generics.ListAPIView):
                 take.batch = 0
                 take.save()
 
-            # Return the order
             serializer = OrderSerializer(order)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
 
         except Exception as e:
-            return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
-        except:
-            return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
-# READ
-# Get the order list
+
 class OrderGetAllView(generics.ListAPIView):
+    """
+    Description: handles the retrieval of all orders
+    """
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [IsLogged, IsRestaurantOwner]
 
-# Get single order
+
 class OrderGetView(generics.RetrieveAPIView):
+    """
+    Description: handles the retrieval of a single order
+    """
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [IsLogged, IsRestaurantOwner]
 
-# UPDATE
-# Retrieve the order
+
 class OrderPutView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Description: handles the update of an order
+    """
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [IsLogged, IsRestaurantOwner]
 
-# Update the order status
+
 class OrderUpdateStatusView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Description: handles the update of an order status
+    """
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [IsLogged, IsRestaurantOwner]
 
     def put(self, request, pk, format=None):
         try:
@@ -82,17 +97,19 @@ class OrderUpdateStatusView(generics.RetrieveUpdateDestroyAPIView):
             order.save()
             # Return the order
             serializer = OrderSerializer(order)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
-        except:
-            return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
-# Update the order payment status
+
 class OrderUpdatePaymentStatusView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Description: handles the update of an order payment status
+    """
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [IsLogged, IsRestaurantOwner]
 
     def put(self, request, pk, format=None):
         try:
@@ -105,15 +122,16 @@ class OrderUpdatePaymentStatusView(generics.RetrieveUpdateDestroyAPIView):
             order.save()
             # Return the order
             serializer = OrderSerializer(order)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
-        except:
-            return Response({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
-# DELETE
-# Delete the order
+
 class OrderDeleteView(generics.DestroyAPIView):
+    """
+    Description: handles the deletion of an order
+    """
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [IsLogged, IsRestaurantOwner]
