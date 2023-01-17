@@ -42,7 +42,7 @@ class RestaurantUserCreateView(views.APIView):
             user.save()
 
             # Create the token
-            token = jwt.encode({'user': user.email, 'date': str(datetime.now())}, JWT_SECRET, algorithm='HS256')
+            token = jwt.encode({'user': user.pk, 'date': str(datetime.now())}, JWT_SECRET, algorithm='HS256')
             # Save the token to redis
             save_user_token_to_redis(token)
 
@@ -94,14 +94,14 @@ class RestaurantUserPutUser(views.APIView):
 
             token = request.headers.get('token')
             decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
-            user_email = decoded['user'] 
+            user_pk = decoded['user'] 
 
             # Get the user email from the request
             new_username = request.data.get('username')
             new_password = request.data.get('password')
 
             # Get the user to modify
-            user = RestaurantUser.objects.get(email=user_email)
+            user = RestaurantUser.objects.get(id=user_pk)
 
             # Handle username change
             valid, error = valid_username(new_username)
@@ -146,10 +146,10 @@ class RestaurantUserDeleteView(views.APIView):
 
             token = request.headers.get('token')
             decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
-            user_email = decoded['user']    
+            user_pk = decoded['user']    
 
             # Delete the user itself
-            user = RestaurantUser.objects.get(email=user_email)
+            user = RestaurantUser.objects.get(id=user_pk)
             user.delete()
 
             # Return the success deletion
@@ -189,7 +189,7 @@ class RestaurantUserLoginView(views.APIView):
                 return JsonResponse({'error': 'Incorrect password given'}, status=status.HTTP_400_BAD_REQUEST)
             
             # Create a new token
-            token = jwt.encode({'user': user.email, 'hash': str(datetime.now())}, JWT_SECRET, algorithm='HS256')
+            token = jwt.encode({'user': user.pk, 'hash': str(datetime.now())}, JWT_SECRET, algorithm='HS256')
 
             # Save the token to redis
             save_user_token_to_redis(token)
@@ -201,6 +201,7 @@ class RestaurantUserLoginView(views.APIView):
         except ObjectDoesNotExist:
             return JsonResponse({'error': 'User does not exists'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            print(e)
             return JsonResponse({'error': f'{e}'}, status=status.HTTP_400_BAD_REQUEST) 
             
 # Logged

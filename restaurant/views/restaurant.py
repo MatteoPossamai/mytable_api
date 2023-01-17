@@ -19,7 +19,7 @@ class RestaurantCreateView(views.APIView):
     def post(self, request, format=None):
         token = request.headers.get('token')
         decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
-        user = RestaurantUser.objects.get(email=decoded['user'])
+        user = RestaurantUser.objects.get(pk=decoded['user'])
 
         serializer = RestaurantSerializer(data=request.data)
         serializer.owner = user

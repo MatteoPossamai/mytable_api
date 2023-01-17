@@ -20,11 +20,11 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         token = request.headers.get('token')
         decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
         if isinstance(obj, Restaurant):
-            return decoded['user'] == obj.owner.email
+            return decoded['user'] == obj.owner.pk
         elif isinstance(obj, Category):
-            return decoded['user'] == obj.restaurant.owner.email
+            return decoded['user'] == obj.restaurant.owner.pk
         elif isinstance(obj, Item):
-            return decoded['user'] == obj.category.restaurant.owner.email
+            return decoded['user'] == obj.category.restaurant.owner.pk
 
 class IsLogged(permissions.BasePermission):
     """
@@ -53,4 +53,4 @@ class IsRestaurantOwner(permissions.BasePermission):
         token = request.headers.get('token')
         decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
         user =  decoded['user']
-        return user == obj.restaurant.owner.email
+        return user == obj.restaurant.owner.pk
