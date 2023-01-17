@@ -160,7 +160,7 @@ class ItemUpdateChangeActiveTest(APITestCase):
             ]
         }
         response = self.client.put(f'/api/v1/item/change-active/', data, format='json', HTTP_TOKEN=self.token)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         item = Item.objects.get(id=self.item_id)
         self.assertEqual(item.id, self.item_id)
@@ -256,7 +256,7 @@ class ItemUpdateChangeNumberTest(APITestCase):
         }
         response = self.client.put(f'/api/v1/item/change-number/', data, format='json', HTTP_TOKEN=self.token)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         item = Item.objects.get(id=self.item_id)
         self.assertEqual(item.id, self.item_id)
         self.assertEqual(item.number, 4)
@@ -369,7 +369,7 @@ class ItemUpdateBulk(APITestCase):
             ]
         }
         response = self.client.put(f'/api/v1/item/bulk_update/', data, format='json', HTTP_TOKEN=self.token)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         item = Item.objects.get(id=self.item_id)
         self.assertEqual(item.id, self.item_id)
         self.assertEqual(item.name, "test2")

@@ -9,9 +9,11 @@ from accounts.models import RestaurantUser
 from utilities import is_jsonable, IsOwnerOrReadOnly, IsLogged
 from mytable.settings import JWT_SECRET
 
-# CREATE
-# Create the restaurant
+
 class RestaurantCreateView(views.APIView):
+    """
+    Description: handle the creation of a new Restaurant
+    """
     permission_classes = [IsLogged]
 
     def post(self, request, format=None):
@@ -26,28 +28,38 @@ class RestaurantCreateView(views.APIView):
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# READ
-# Get the restaurant list
+
 class RestaurantGetAllView(generics.ListAPIView):
+    """
+    Description: returns all the restaurants
+    """
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
     permission_classes = [IsOwnerOrReadOnly]
 
-# Get single restaurant
+
 class RestaurantGetView(generics.RetrieveAPIView):
+    """
+    Description: returns a single restaurant
+    """
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
-# UPDATE
-# Retrieve the restaurant
+
 class RestaurantPutView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Description: update a restaurant
+    """
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
-# Change the restaurant plan
+
 class RestaurantChangePlan(views.APIView):
+    """
+    Description: change the plan of a restaurant
+    """
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
     def put(self, request, pk, format=None):
@@ -60,13 +72,11 @@ class RestaurantChangePlan(views.APIView):
             instance.plan = plan
             instance.save()
 
-            serializer = RestaurantSerializer(instance)
-
         except Restaurant.DoesNotExist:
             return JsonResponse({'error': 'Restaurant does not exist'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
-        return JsonResponse({'success': 'Plan changed'}, status=status.HTTP_200_OK)
+        return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
 
 # DELETE
 # Delete the restaurant

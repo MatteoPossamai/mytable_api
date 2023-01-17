@@ -8,26 +8,37 @@ from ..serializers.item import ItemSerializer
 
 from utilities import is_jsonable, IsOwnerOrReadOnly, IsLogged
 
-# CREATE
-# Create the item
+
 class ItemCreateView(generics.CreateAPIView):
+    """
+    Description: handle the creation of a new Item
+    """
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
     permission_classes = [IsLogged]
 
-# READ
-# Get the item list
+
 class ItemGetAllView(generics.ListAPIView):
+    """
+    Description: returns all the items
+    """
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
 
-# Get single item
+
 class ItemGetView(generics.RetrieveAPIView):
+    """
+    Description: returns a single item
+    """
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
+
 class ItemGetByRestaurantView(views.APIView):
+    """
+    Description: returns all the items of a restaurant
+    """
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
     def get(self, request, pk, format=None):
@@ -46,7 +57,11 @@ class ItemGetByRestaurantView(views.APIView):
         except Exception as e:
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class ItemGetByRestaurantActiveView(views.APIView):
+    """
+    Description: returns all the active items of a restaurant
+    """
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
     def get(self, request, pk, format=None):
@@ -64,7 +79,11 @@ class ItemGetByRestaurantActiveView(views.APIView):
         except Exception as e:
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class ItemGetByCategoryView(views.APIView):
+    """
+    Description: returns all the items of a category
+    """
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
     def get(self, request, pk, format=None):
@@ -81,7 +100,11 @@ class ItemGetByCategoryView(views.APIView):
         except Exception as e:
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class ItemGetByCategoryActiveView(views.APIView):
+    """
+    Description: returns all the active items of a category
+    """
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
     def get(self, request, pk, format=None):
@@ -99,15 +122,20 @@ class ItemGetByCategoryActiveView(views.APIView):
         except Exception as e:
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
-# UPDATE
-# Retrieve the item
+
 class ItemPutView(generics.UpdateAPIView):
+    """
+    Description: handle the update of an item
+    """
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
 
 class ItemsChangeActiveView(views.APIView):
+    """
+    Description: handle the update of the active field of multiple items
+    """
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
     def put(self, request, format=None):
@@ -124,10 +152,13 @@ class ItemsChangeActiveView(views.APIView):
                 instance.save()
         except Exception as e:
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
-        return JsonResponse({'success': 'Active changed'}, status=status.HTTP_200_OK)
+        return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
 
 
 class ItemsChangeNumberView(views.APIView):
+    """
+    Description: handle the update of the number field of multiple items
+    """
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
     def put(self, request, format=None):
@@ -145,9 +176,13 @@ class ItemsChangeNumberView(views.APIView):
                 instance.save()
         except:
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
-        return JsonResponse({'success': 'Number changed'}, status=status.HTTP_200_OK)
+        return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
+
 
 class ItemsBulkUpdate(views.APIView):
+    """
+    Description: handle the update of multiple items
+    """
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
     def put(self, request, format=None):
@@ -173,12 +208,13 @@ class ItemsBulkUpdate(views.APIView):
                 instance.save()
         except Exception as e:
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
-        return JsonResponse({'success': 'Number changed'}, status=status.HTTP_200_OK)
+        return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
     
 
-# DELETE
-# Delete the item
 class ItemDeleteView(generics.DestroyAPIView):
+    """
+    Description: handle the deletion of an item
+    """
     queryset = Item.objects.all()
     serializer_class = ItemSerializer
     permission_classes = [IsLogged, IsOwnerOrReadOnly]

@@ -6,27 +6,37 @@ from ..serializers.category import CategorySerializer
 
 from utilities import IsOwnerOrReadOnly, IsLogged
 
-# CREATE
-# Create the category
+
 class CategoryCreateView(generics.CreateAPIView):
+    """
+    Description: handle the creation of a new Category
+    """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsLogged]
 
-# READ
-# Get the category list
+
 class CategoryGetAllView(generics.ListAPIView):
+    """
+    Description: returns all the categories
+    """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
-# Get single category
+
 class CategoryGetView(generics.RetrieveAPIView):
+    """
+    Description: returns a single category
+    """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
-# Get all categories from a restaurant
+
 class CategoryGetAllByRestaurant(views.APIView):
+    """
+    Description: returns all the categories of a restaurant
+    """
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
     def get(self, request, pk, format=None):
@@ -43,6 +53,9 @@ class CategoryGetAllByRestaurant(views.APIView):
 
 
 class CategoryGetAllActiveByRestaurantView(views.APIView):
+    """
+    Description: returns all the active categories of a restaurant
+    """
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
     
     def get(self, request, pk, format=None):
@@ -59,14 +72,19 @@ class CategoryGetAllActiveByRestaurantView(views.APIView):
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# UPDATE
-# Retrieve the category
 class CategoryPutView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Description: handle the update of a single category
+    """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
+
 class CategoriesChangeNumberView(views.APIView):
+    """
+    Description: handle the update of the number of a set of categories
+    """
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
     def put(self, request, format=None):
@@ -87,7 +105,11 @@ class CategoriesChangeNumberView(views.APIView):
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
         return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
 
+
 class CategoriesChangeActiveView(views.APIView):
+    """
+    Description: handle the update of the isActive attribute of a set of categories
+    """
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
     def put(self, request, format=None):
@@ -108,7 +130,11 @@ class CategoriesChangeActiveView(views.APIView):
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
         return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
 
+
 class CategoriesBulkUpdate(views.APIView):
+    """
+    Description: handle the update of a set of categories
+    """
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
     def put(self, request, format=None):
@@ -131,9 +157,11 @@ class CategoriesBulkUpdate(views.APIView):
             return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)
         return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
 
-# DELETE
-# Delete the category
+
 class CategoryDeleteView(generics.DestroyAPIView):
+    """
+    Description: handle the deletion of a single category
+    """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsLogged, IsOwnerOrReadOnly]

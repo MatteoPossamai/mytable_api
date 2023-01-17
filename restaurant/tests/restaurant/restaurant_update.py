@@ -119,7 +119,7 @@ class RestaurantPutTest(APITestCase):
         }
 
         response = self.client.put(f'/api/v1/restaurant/change-plan/{identification}/', data, format='json', HTTP_TOKEN=self.token)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Restaurant.objects.count(), 1)
         self.assertEqual(Restaurant.objects.get().plan, {'test': 'test'})
 
