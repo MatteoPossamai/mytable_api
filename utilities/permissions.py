@@ -1,6 +1,8 @@
 from rest_framework import permissions
 import jwt
 
+from accounts.models.restaurant_user import RestaurantUser
+
 from .tasks import is_token_valid
 from restaurant.models import Restaurant, Category, Item
 from mytable.settings import JWT_SECRET
@@ -54,3 +56,16 @@ class IsRestaurantOwner(permissions.BasePermission):
         decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
         user =  decoded['user']
         return user == obj.restaurant.owner.pk
+
+
+class IsAdminUser(permissions.BasePermission):
+    """
+    Description: Custom permission to only allow admin users to access the API
+    """
+
+    def has_permission(self, request, view):
+        token = request.headers.get('token')
+        decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+        user =  decoded['user']
+        user_obj = RestaurantUser.objects.get(pk=user)
+        return user_obj.is_staff

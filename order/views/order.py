@@ -5,7 +5,7 @@ from ..models.order import Order
 from ..serializers.order import OrderSerializer
 
 from ..models.takes import Take
-from utilities import IsRestaurantOwner, IsLogged
+from utilities import IsRestaurantOwner, IsLogged, IsAdminUser
 from restaurant.models import Item
 
 
@@ -135,3 +135,21 @@ class OrderDeleteView(generics.DestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsLogged, IsRestaurantOwner]
+
+
+class OrderDeleteAll(generics.DestroyAPIView):
+    """
+    Description: handles the deletion of all orders
+    """
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsAdminUser]
+
+    def delete(self, request, format=None):
+        try:
+            # Delete all orders
+            Order.objects.all().delete()
+            return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
+
+        except Exception as e:
+            return JsonResponse({'error': 'Bad request'}, status=status.HTTP_400_BAD_REQUEST)

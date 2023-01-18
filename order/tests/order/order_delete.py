@@ -83,3 +83,59 @@ class OrderReadAllTestCase(APITestCase):
     def test_order_delete_no_auth(self):
         response = self.client.delete(f'/api/v1/order/delete/{self.order_id}/', format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class DeleteAllTest(APITestCase):
+    def setUp(self):
+        self.data = {
+            'username': 'test',
+            'email': 'test@test.com',
+            'password': 'password123'
+        }
+        response = self.client.post('/api/v1/restaurant_user/signup/', self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        
+        self.token = response.json().get('token')
+
+        self.user = RestaurantUser.objects.get(username='test')
+        self.user.is_staff = True
+        self.user.save()
+
+        self.data = {
+            'username': 'test123',
+            'email': 'test123@test.com',
+            'password': 'password123'
+        }
+        response = self.client.post('/api/v1/restaurant_user/signup/', self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.token2 = response.json().get('token')
+
+        self.restaurant = Restaurant.objects.create(
+            name="test",
+            plan={},
+            location="test",
+            phone="test",
+            owner=self.user,
+        )
+        self.identificator = self.restaurant.id
+
+        obj = Order.objects.create(
+                restaurant=self.restaurant,
+                payment_method="test",
+                payment_status="test",
+                order_status="test",
+                note="test",
+            )
+
+        self.order_id = obj.id
+
+    def test_delete_all(self):
+        response = self.client.delete(f'/api/v1/order/delete/', format='json', HTTP_TOKEN=self.token)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_delete_all_no_auth_user(self):
+        response = self.client.delete(f'/api/v1/order/delete/', format='json', HTTP_TOKEN=self.token2)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

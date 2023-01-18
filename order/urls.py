@@ -3,7 +3,7 @@ from django.urls import path, include
 from .views import OrderCreateView, OrderGetAllView, OrderGetView, OrderPutView, \
     OrderDeleteView, TakesGetAllView, TakesGetAllByOrder, TakesGetSingleView, \
         TakesUpdateView, TakesDeleteView, TakesDeleteAllByOrder, TakesDeleteAllByRestaurant, \
-        TakesCreateView, OrderUpdateStatusView, OrderUpdatePaymentStatusView
+        TakesCreateView, OrderUpdateStatusView, OrderUpdatePaymentStatusView, OrderDeleteAll
 
 current_version = 'v1'
 
@@ -20,6 +20,7 @@ order_urlpatterns = [
     path('update/payment_status/<int:pk>/', OrderUpdatePaymentStatusView.as_view(), name='order_update_payment_status'),
     # Delete
     path('delete/<int:pk>/', OrderDeleteView.as_view(), name='order_delete'),
+    path('delete/', OrderDeleteAll.as_view(), name='order_delete_all'),
 ]
 
 take_urlpatterns = [
