@@ -1,6 +1,8 @@
 from rest_framework import generics, status
 from django.http.response import JsonResponse
 
+from restaurant.models.restaurant import Restaurant
+
 from ..models.order import Order
 from ..serializers.order import OrderSerializer
 
@@ -19,29 +21,33 @@ class OrderCreateView(generics.ListAPIView):
         try:
             # Collection of data from the request
             items = request.data['items']
-            quantity = request.data['quantity']
             restaurant_id = request.data['restaurant_id']
             payment_method = request.data['payment_method']
             payment_status = request.data['payment_status']
             note = request.data['note']
 
             # Create the order
-            order = Order.objects.create()
-            order.payment_method = payment_method
-            order.payment_status = payment_status
-            order.order_status = 'Received'
-            order.note = note
-            order.restaurant_id = restaurant_id
+            restaurant = Restaurant.objects.get(id=restaurant_id)
+            
+            order = Order.objects.create(
+                restaurant=restaurant,
+                payment_method=payment_method,
+                payment_status=payment_status,
+                order_status="pending",
+                note=note,
+            )
             order.save()
 
             # Create the takes
             for i in range(len(items)):
-                item = Item.objects.get(id=items[i])
-                take = Take.objects.create()
-                take.order = order
-                take.item = item
-                take.quantity = quantity[i]
-                take.batch = 0
+                item = Item.objects.get(pk=int(items[i].get('id')))
+                take = Take.objects.create(
+                    order=order,
+                    item=item,
+                    quantity=items[i].get('quantity'),
+                    batch=1,
+                )
+
                 take.save()
 
             serializer = OrderSerializer(order)
