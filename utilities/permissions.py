@@ -5,6 +5,7 @@ from accounts.models.restaurant_user import RestaurantUser
 
 from .tasks import is_token_valid
 from restaurant.models import Restaurant, Category, Item
+from order.models import Order, Take
 from mytable.settings import JWT_SECRET
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
@@ -55,7 +56,10 @@ class IsRestaurantOwner(permissions.BasePermission):
         token = request.headers.get('token')
         decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
         user =  decoded['user']
-        return user == obj.restaurant.owner.pk
+        if isinstance(obj, Take):
+            return user == obj.order.restaurant.owner.pk
+        else:
+            return user == obj.restaurant.owner.pk
 
 
 class IsAdminUser(permissions.BasePermission):

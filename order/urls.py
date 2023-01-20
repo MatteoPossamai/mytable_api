@@ -28,14 +28,14 @@ take_urlpatterns = [
     path('create/', TakesCreateView.as_view(), name='takes_create'),
     # Read
     path('', TakesGetAllView.as_view(), name='takes_get_all'),
-    path('get/<int:order_pk>/', TakesGetAllByOrder.as_view(), name='takes_get_all_by_order'),
     path('get/<int:pk>/', TakesGetSingleView.as_view(), name='takes_get_single'),
+    path('get/order/<int:order_pk>/', TakesGetAllByOrder.as_view(), name='takes_get_all_by_order'),
     # Update
     path('put/<int:pk>/', TakesUpdateView.as_view(), name='takes_put'),
     # Delete
     path('delete/<int:pk>/', TakesDeleteView.as_view(), name='takes_delete'),
-    path('delete/<int:order_pk>/', TakesDeleteAllByOrder.as_view(), name='takes_delete_all_by_order'),
-    path('delete/<int:restaurant_pk>/', TakesDeleteAllByRestaurant.as_view(), name='takes_delete_all_by_restaurant'),
+    path('delete/order/<int:order_pk>/', TakesDeleteAllByOrder.as_view(), name='takes_delete_all_by_order'),
+    path('delete/restaurant/<int:restaurant_pk>/', TakesDeleteAllByRestaurant.as_view(), name='takes_delete_all_by_restaurant'),
 ]
 
 # ALL URLS
