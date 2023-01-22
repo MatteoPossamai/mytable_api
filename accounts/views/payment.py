@@ -15,12 +15,10 @@ class CreateCheckoutSessionView(views.APIView):
 
     def post(self, request, format=None):
         try:
-            print(request.data.get('lookup_key'))
             prices = stripe.Price.list(
                 lookup_keys=[request.data.get('lookup_key')],
                 expand=['data.product']
             )
-            print(prices)
 
             checkout_session = stripe.checkout.Session.create(
                 line_items=[
@@ -39,9 +37,10 @@ class CreateCheckoutSessionView(views.APIView):
             print(e)
             return JsonResponse({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 class CreatePortalSessionView(views.APIView):
     def post(self, request, format=None):
-        checkout_session_id = request.form.get('session_id')
+        checkout_session_id = request.data.get('session_id')
         checkout_session = stripe.checkout.Session.retrieve(checkout_session_id)
 
         return_url = settings.DOMAIN_URL
