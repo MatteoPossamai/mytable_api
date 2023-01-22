@@ -20,17 +20,22 @@ class CreateCheckoutSessionView(views.APIView):
                 expand=['data.product']
             )
 
-            checkout_session = stripe.checkout.Session.create(
-                line_items=[
+            items = [
                     {
                         'price': prices.data[0].id,
                         'quantity': 1,
                     },
-                ],
+                ]
+
+            checkout_session = stripe.checkout.Session.create(
+                line_items=items,
                 mode='subscription',
                 success_url=settings.DOMAIN_URL +
                 '?success=true&session_id={CHECKOUT_SESSION_ID}',
                 cancel_url=settings.DOMAIN_URL+ '?canceled=true',
+                subscription_data={
+                    'trial_period_days': 30,
+                },
             )
             return redirect(checkout_session.url)
         except Exception as e:
