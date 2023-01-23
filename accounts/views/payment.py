@@ -12,20 +12,26 @@ stripe.api_key = STRIPE_SECRET
 
 
 class CreateCheckoutSessionView(views.APIView):
+    """
+    Description: Create a checkout session for a customer
+    """
 
     def post(self, request, format=None):
         try:
+            keys = request.POST.getlist('lookup_key')
+
             prices = stripe.Price.list(
-                lookup_keys=[request.data.get('lookup_key')],
+                lookup_keys=keys,
                 expand=['data.product']
             )
+            
+            items = []
 
-            items = [
-                    {
-                        'price': prices.data[0].id,
-                        'quantity': 1,
-                    },
-                ]
+            for price in prices.data:
+                items.append({
+                    'price': price.id,
+                    'quantity': 1,
+                })
 
             checkout_session = stripe.checkout.Session.create(
                 line_items=items,
@@ -44,6 +50,9 @@ class CreateCheckoutSessionView(views.APIView):
 
 
 class CreatePortalSessionView(views.APIView):
+    """
+    Description: Create a portal session for a customer
+    """
     def post(self, request, format=None):
         checkout_session_id = request.data.get('session_id')
         checkout_session = stripe.checkout.Session.retrieve(checkout_session_id)
@@ -58,6 +67,9 @@ class CreatePortalSessionView(views.APIView):
 
 
 class WebhookView(views.APIView):
+    """
+    Description: Webhook for Stripe
+    """
 
     def post(self, request, format=None):
         # Replace this endpoint secret with your endpoint's unique secret
@@ -97,3 +109,16 @@ class WebhookView(views.APIView):
             print('Subscription canceled: %s', event.id)
 
         return json.dumps({'status': 'success'})
+
+
+class GetProductsView(views.APIView):
+    """
+    Description: Get all products
+    """
+
+    def get(self, request, format=None):
+        try: 
+            products = stripe.Product.list(limit=5)
+            return JsonResponse(products, safe=False)
+        except Exception as e:
+            return JsonResponse({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
