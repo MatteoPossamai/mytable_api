@@ -3,10 +3,15 @@ from rest_framework import status, views
 from django.shortcuts import redirect
 from django.conf import settings
 
-import json
 import stripe
+import jwt
 
 from mytable.settings import STRIPE_SECRET
+from mytable.settings import JWT_SECRET
+from restaurant.models.restaurant import Restaurant
+from utilities import IsLogged
+from accounts.models.restaurant_user import RestaurantUser
+from accounts.serializers.restaurant_user import RestaurantUserSerializer
 
 stripe.api_key = STRIPE_SECRET
 
@@ -18,6 +23,8 @@ class CreateCheckoutSessionView(views.APIView):
 
     def post(self, request, format=None):
         try:
+            restaurant_id = request.data.get('restaurant_id')
+
             keys = request.POST.getlist('lookup_key')
 
             prices = stripe.Price.list(
@@ -34,6 +41,7 @@ class CreateCheckoutSessionView(views.APIView):
                 })
 
             checkout_session = stripe.checkout.Session.create(
+                client_reference_id=restaurant_id,
                 line_items=items,
                 mode='subscription',
                 success_url=settings.DOMAIN_URL +
@@ -66,6 +74,21 @@ class CreatePortalSessionView(views.APIView):
         return redirect(portalSession.url, code=303)
 
 
+class CustomerPortalView(views.APIView):
+    """
+    Description: Customer portal
+    """
+    def post(self, request, format=None):
+        return_url = settings.DOMAIN_URL
+        customer_id = []
+
+        session = stripe.billing_portal.Session.create(
+            customer=customer_id,
+            return_url=return_url,
+        )       
+        return redirect(session.url, code=303)
+
+
 class WebhookView(views.APIView):
     """
     Description: Webhook for Stripe
@@ -76,39 +99,55 @@ class WebhookView(views.APIView):
         # If you are testing with the CLI, find the secret by running 'stripe listen'
         # If you are using an endpoint defined with the API or dashboard, look in your webhook settings
         # at https://dashboard.stripe.com/webhooks
-        webhook_secret = 'whsec_12345'
-        request_data = json.loads(request.data)
+        payload = request.body
+        signature = request.headers.get('stripe-signature')
+        endpoint_secret = settings.DJSTRIPE_WEBHOOK_SECRET
+        try: 
+            event = stripe.Webhook.construct_event(
+                payload, signature, endpoint_secret
+            )
+        except ValueError as e:
+            # Invalid payload
+            print(e)
+            return JsonResponse({}, status=status.HTTP_400_BAD_REQUEST)
+        except stripe.error.SignatureVerificationError as e:
+            # Invalid signature
+            print(e)
+            return JsonResponse({}, status=status.HTTP_400_BAD_REQUEST)
 
-        if webhook_secret:
-            signature = request.headers.get('stripe-signature')
-            try:
-                event = stripe.Webhook.construct_event(
-                    payload=request.data, sig_header=signature, secret=webhook_secret)
-                data = event['data']
-            except Exception as e:
-                return e
-            event_type = event['type']
-        else:
-            data = request_data['data']
-            event_type = request_data['type']
-        data_object = data['object']
-
-        print('event ' + event_type)
+        data = event['data']
+        event_type = event['type']
 
         if event_type == 'checkout.session.completed':
-            print('🔔 Payment succeeded!')
-        elif event_type == 'customer.subscription.trial_will_end':
-            print('Subscription trial will end')
-        elif event_type == 'customer.subscription.created':
-            print('Subscription created %s', event.id)
-        elif event_type == 'customer.subscription.updated':
-            print('Subscription created %s', event.id)
-        elif event_type == 'customer.subscription.deleted':
-            # handle subscription canceled automatically based
-            # upon your subscription settings. Or if the user cancels it.
-            print('Subscription canceled: %s', event.id)
+            session = event['data']['object']
 
-        return json.dumps({'status': 'success'})
+            # Fetch all the required data from session
+            client_reference_id = session.get('client_reference_id')
+            stripe_customer_id = session.get('customer')
+            stripe_subscription_id = session.get('subscription')
+
+            # Get the user and create a new StripeCustomer
+            restaurant = Restaurant.objects.get(id=client_reference_id)
+            restaurant.stripe_customer_id = stripe_customer_id
+            restaurant.stripe_subscription_id = stripe_subscription_id
+            restaurant.save()
+
+            print()
+
+        elif event_type == 'invoice.paid':
+            # Continue to provision the subscription as payments continue to be made.
+            # Store the status in your database and check when a user accesses your service.
+            # This approach helps you avoid hitting rate limits.
+            print(data)
+        elif event_type == 'invoice.payment_failed':
+            # The payment failed or the customer does not have a valid payment method.
+            # The subscription becomes past_due. Notify your customer and send them to the
+            # customer portal to update their payment information.
+            print(data)
+        else:
+            print('Unhandled event type {}'.format(event_type))
+
+        return JsonResponse({}, status=status.HTTP_200_OK)
 
 
 class GetProductsView(views.APIView):
@@ -118,7 +157,39 @@ class GetProductsView(views.APIView):
 
     def get(self, request, format=None):
         try: 
-            products = stripe.Product.list(limit=5)
+            products = stripe.Price.list(limit=5)
             return JsonResponse(products, safe=False)
+        except Exception as e:
+            return JsonResponse({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class DeleteSubscriptionView(views.APIView):
+    """
+    Description: Delete a subscription
+    """
+    permission_classes = [IsLogged]
+
+    def post(self, request, format=None):
+        try:
+            token = request.headers.get('token')
+            decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+
+            user_id = decoded['user']
+            user = RestaurantUser.objects.get(id=user_id)
+
+            # Get all his restaurants
+            serialized_user = RestaurantUserSerializer(user)
+            restaurant_id = serialized_user.data.get('restaurants')[0]
+            
+            restaurant = Restaurant.objects.get(id=restaurant_id)
+            restaurant.plan({
+                "menu_plan": 0,
+                "image_number": 0,
+                "client_order": 0,  
+                "waiter_order": 0,
+            })
+
+            return JsonResponse({}, status=status.HTTP_200_OK)
+
         except Exception as e:
             return JsonResponse({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

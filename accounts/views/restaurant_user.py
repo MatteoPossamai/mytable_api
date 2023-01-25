@@ -5,16 +5,18 @@ from utilities.tasks import save_user_token_to_redis, is_token_valid, delete_tok
 import jwt
 from django.db import IntegrityError
 from datetime import datetime
+import stripe
 
 from ..models.restaurant_user import RestaurantUser
 from ..serializers.restaurant_user import RestaurantUserSerializer
 from utilities import Encryptor, IsLogged, valid_password, valid_username
 from mytable.settings import JWT_SECRET
+from mytable.settings import STRIPE_SECRET
 
 Encryptor = Encryptor()
+stripe.api_key = STRIPE_SECRET
 
-# CREATE
-# Create the restaurant user
+
 class RestaurantUserCreateView(views.APIView):
     """
     Description: handles user creation and signup
@@ -55,8 +57,7 @@ class RestaurantUserCreateView(views.APIView):
             
             return JsonResponse({'error': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
 
-# READ
-# Get the restaurant user list
+
 class RestaurantUserGetAllView(generics.ListAPIView):
     """
     Description: returns all user instance
@@ -64,7 +65,7 @@ class RestaurantUserGetAllView(generics.ListAPIView):
     queryset = RestaurantUser.objects.all()
     serializer_class = RestaurantUserSerializer
 
-# Get single restaurant user
+
 class RestaurantUserGetView(generics.RetrieveAPIView):
     """
     Description: returns a single user instance
@@ -81,8 +82,7 @@ class RestaurantUserGetView(generics.RetrieveAPIView):
             
             return JsonResponse({'error': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
 
-# UPDATE
-# Modify username
+
 class RestaurantUserPutUser(views.APIView):
     """
     Description: handles username and passowrd changes
@@ -133,8 +133,7 @@ class RestaurantUserPutUser(views.APIView):
             
             return JsonResponse({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
     
-# DELETE
-# Delete the restaurant user
+
 class RestaurantUserDeleteView(views.APIView):
     """
     Description: handles the user deletion
@@ -162,7 +161,7 @@ class RestaurantUserDeleteView(views.APIView):
             
             return JsonResponse({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
 
-# Login
+
 class RestaurantUserLoginView(views.APIView):  
     """
     Description: logs in a user
@@ -204,7 +203,7 @@ class RestaurantUserLoginView(views.APIView):
             print(e)
             return JsonResponse({'error': f'{e}'}, status=status.HTTP_400_BAD_REQUEST) 
             
-# Logged
+
 class RestaurantUserLogged(views.APIView):
     """
     Description: check if user is logged
@@ -214,7 +213,7 @@ class RestaurantUserLogged(views.APIView):
     def post(self, request, format=None):
         return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
 
-# Logout
+
 class RestaurantUserLogoutView(views.APIView):
     """
     Description: Handles logout in the user flow

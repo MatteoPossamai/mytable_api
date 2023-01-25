@@ -3,7 +3,7 @@ from django.urls import path, include
 from .views import RestaurantUserCreateView, RestaurantUserDeleteView, \
     RestaurantUserGetAllView, RestaurantUserGetView, RestaurantUserPutUser, \
     RestaurantUserLoginView, RestaurantUserLogoutView, RestaurantUserLogged, CreateCheckoutSessionView, \
-    WebhookView, CreatePortalSessionView, GetProductsView
+    WebhookView, CreatePortalSessionView, GetProductsView, DeleteSubscriptionView, CustomerPortalView
 
 
 current_version = 'v1'
@@ -27,8 +27,10 @@ restaurant_user_urlpatterns = [
 payment_urlpatterns = [
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create_checkout_session'),
     path('create-portal-session/', CreatePortalSessionView.as_view(), name='create_portal_session'),
+    path('customer-portal/', CustomerPortalView.as_view(), name='customer_portal'),
     path('webhook/', WebhookView.as_view(), name='webhook'),
     path('products/', GetProductsView.as_view(), name='get_products'),
+    path('delete-subscription/', DeleteSubscriptionView.as_view(), name='delete_subscription'),
 ]
 
 # ALL URLS

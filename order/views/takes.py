@@ -7,7 +7,7 @@ from ..models.takes import Take
 from ..serializers.takes import TakeSerializer
 
 from restaurant.models import Item
-from utilities import IsRestaurantOwner, IsLogged, IsAdminUser
+from utilities import IsRestaurantOwner, IsLogged
 
 
 class TakesCreateView(generics.CreateAPIView):
