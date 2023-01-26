@@ -140,7 +140,7 @@ class OrderReadOneTestCase(APITestCase):
     def test_read_one_order_not_mine(self):
         self.data = {
             'username': 'test123',
-            'email': 'test123@test.com',
+            'email': 'test@test.com',
             'password': 'password123'
         }
         response = self.client.post('/api/v1/restaurant_user/signup/', self.data, format='json')

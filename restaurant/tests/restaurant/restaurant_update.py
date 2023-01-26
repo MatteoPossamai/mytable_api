@@ -17,7 +17,7 @@ class RestaurantPutTest(APITestCase):
             'password': 'password123'
         }
         self.data_logged = {
-            "user": "test123@test.com"
+            "user": "test@test.com"
         }
         response = self.client.post('/api/v1/restaurant_user/signup/', self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

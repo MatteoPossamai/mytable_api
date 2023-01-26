@@ -12,8 +12,6 @@ from restaurant.models.restaurant import Restaurant
 from utilities import IsLogged
 from accounts.models.restaurant_user import RestaurantUser
 from accounts.serializers.restaurant_user import RestaurantUserSerializer
-from utilities import IsLogged
-
 
 stripe.api_key = STRIPE_SECRET
 
@@ -25,28 +23,22 @@ class CreateCheckoutSessionView(views.APIView):
 
     def post(self, request, format=None):
         try:
-
+            # For now is fine sending the email, but in the future we should send the token
             email= request.data.get('customer_email')
             customer = RestaurantUser.objects.get(email=email)
-            print(customer)
 
-            keys = request.POST.getlist('lookup_key')
-
-            prices = stripe.Price.list(
-                lookup_keys=keys,
-                expand=['data.product']
-            )
+            keys = request.POST.getlist('price')
             
             items = []
 
-            for price in prices.data:
+            for price in keys:
                 items.append({
-                    'price': price.id,
+                    'price': price,
                     'quantity': 1,
                 })
 
             checkout_session = stripe.checkout.Session.create(
-                customer_email=customer.email,
+                customer=customer.stripe_customer_id,
                 line_items=items,
                 mode='subscription',
                 success_url= "http://localhost:3000/payment/" +
@@ -69,11 +61,8 @@ class CreatePortalSessionView(views.APIView):
     Description: Create a portal session for a customer
     """
     def post(self, request, format=None):
-        print("\n\n\n")
         checkout_session_id = request.data.get('session_id')
         checkout_session = stripe.checkout.Session.retrieve(checkout_session_id)
-
-        print(checkout_session)
 
         return_url = settings.DOMAIN_URL
 
@@ -88,16 +77,17 @@ class CustomerPortalView(views.APIView):
     """
     Description: Customer portal
     """
-    permission_classes = [IsLogged]
+    # permission_classes = [IsLogged]
 
     def post(self, request, format=None):
-        token = request.headers.get('token')
-        decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
-        user_id = decoded['user_id']
-        user = RestaurantUser.objects.get(id=user_id)
+        # token = request.headers.get('token')
+        # decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+        # user_id = decoded['user_id']
+        # user = RestaurantUser.objects.get(id=user_id)
 
         return_url = settings.DOMAIN_URL
-        customer_id = user.stripe_customer_id
+        # customer_id = user.stripe_customer_id
+        customer_id = 'cus_NF5V9eOu2h1Rce'
 
         session = stripe.billing_portal.Session.create(
             customer=customer_id,

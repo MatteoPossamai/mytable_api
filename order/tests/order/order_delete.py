@@ -52,7 +52,7 @@ class OrderReadAllTestCase(APITestCase):
     def test_order_delete_not_owner(self):
         self.data = {
             'username': 'test123',
-            'email': 'test123@test.com',
+            'email': 'test@test.com',
             'password': 'password123'
         }
         response = self.client.post('/api/v1/restaurant_user/signup/', self.data, format='json')
@@ -101,7 +101,7 @@ class DeleteAllTest(APITestCase):
 
         self.data = {
             'username': 'test123',
-            'email': 'test123@test.com',
+            'email': 'test@test.com',
             'password': 'password123'
         }
         response = self.client.post('/api/v1/restaurant_user/signup/', self.data, format='json')

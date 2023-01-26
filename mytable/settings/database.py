@@ -29,5 +29,3 @@ else:
         'PORT': os.getenv('DB_PORT', 5432)
     }
 }
-
-print(f"DATABASES: {DATABASES}")
