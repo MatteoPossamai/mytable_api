@@ -32,7 +32,6 @@ class RestaurantGetTest(APITestCase):
     def test_restaurant_get_all(self):
         data = {
             "name": "test",
-            "plan": {},
             "location": "test",
             "phone": "test",
             "description": "test"
@@ -48,7 +47,6 @@ class RestaurantGetTest(APITestCase):
     def test_restaurant_get_all_multiple(self):
         data = {
             "name": "test",
-            "plan": {},
             "location": "test",
             "phone": "test",
             "description": "test"
@@ -67,7 +65,6 @@ class RestaurantGetTest(APITestCase):
     def test_restaurant_get_one(self):
         data = {
             "name": "test",
-            "plan": {},
             "location": "test",
             "phone": "test",
             "description": "test"
@@ -81,7 +78,6 @@ class RestaurantGetTest(APITestCase):
         restaurant = response.json()
 
         self.assertEqual(restaurant['name'], 'test')
-        self.assertEqual(restaurant['plan'], {})
         self.assertEqual(restaurant['location'], 'test')
         self.assertEqual(restaurant['phone'], 'test')
         self.assertEqual(restaurant['description'], 'test')

@@ -23,7 +23,6 @@ class OrderReadAllTestCase(APITestCase):
 
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,
@@ -62,7 +61,6 @@ class OrderReadAllTestCase(APITestCase):
 
         self.restaurant1 = Restaurant.objects.create(
             name="test2",
-            plan={},
             location="test",
             phone="test",
             owner=self.user1,
@@ -113,7 +111,6 @@ class DeleteAllTest(APITestCase):
 
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,

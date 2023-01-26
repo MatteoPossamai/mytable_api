@@ -27,7 +27,6 @@ class RestaurantDeleteTest(APITestCase):
     def test_restaurant_delete(self):
         data = {
             "name": "test",
-            "plan": {},
             "location": "test",
             "phone": "test",
             "description": "test"

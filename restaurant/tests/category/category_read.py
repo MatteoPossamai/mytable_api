@@ -30,7 +30,6 @@ class CategoryReadSigleTest(APITestCase):
 
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,
@@ -91,7 +90,6 @@ class CategoryReadAllTest(APITestCase):
 
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,
@@ -135,7 +133,6 @@ class CategoryReadAllActive(APITestCase):
 
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,
@@ -187,7 +184,6 @@ class CategoryReadAllRestaurant(APITestCase):
 
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,

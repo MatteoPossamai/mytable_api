@@ -24,7 +24,6 @@ class RestaurantCreateTest(APITestCase):
     def test_restaurant_create(self):
         data = {
             "name": "test",
-            "plan": {},
             "location": "test",
             "phone": "test",
             "description": "test"
@@ -37,7 +36,6 @@ class RestaurantCreateTest(APITestCase):
         self.assertEqual(Restaurant.objects.get().name, 'test')
 
         self.assertEqual(response.json().get('name'), 'test')
-        self.assertEqual(response.json().get('plan'), {})
         self.assertEqual(response.json().get('location'), 'test')
         self.assertEqual(response.json().get('phone'), 'test')
         self.assertEqual(response.json().get('description'), 'test')
@@ -47,17 +45,6 @@ class RestaurantCreateTest(APITestCase):
 
     def test_restaurant_create_without_name(self):
         data = {
-            "plan": 1,
-            "location": "test",
-            "phone": "test",
-            "description": "test"
-        }
-        response = self.client.post('/api/v1/restaurant/create/', data, format='json', HTTP_TOKEN=self.token)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_restaurant_create_without_plan(self):
-        data = {
-            "name": "test",
             "location": "test",
             "phone": "test",
             "description": "test"
@@ -68,7 +55,6 @@ class RestaurantCreateTest(APITestCase):
     def test_restaurant_create_without_location(self):
         data = {
             "name": "test",
-            "plan": {},
             "phone": "test",
             "description": "test"
         }
@@ -78,7 +64,6 @@ class RestaurantCreateTest(APITestCase):
     def test_restaurant_create_without_phone(self):
         data = {
             "name": "test",
-            "plan": {},
             "location": "test",
             "description": "test"
         }
@@ -88,7 +73,6 @@ class RestaurantCreateTest(APITestCase):
     def test_restaurant_create_without_description(self):
         data = {
             "name": "test",
-            "plan": {},
             "location": "test",
             "phone": "test"
         }
@@ -98,7 +82,6 @@ class RestaurantCreateTest(APITestCase):
     def test_restaurant_create_multiple_instance(self):
         data = {
             "name": "test",
-            "plan": {},
             "location": "test",
             "phone": "test",
             "description": "test"
@@ -113,7 +96,6 @@ class RestaurantCreateTest(APITestCase):
     def test_restaurant_create_no_auth(self):
         data = {
             "name": "test",
-            "plan": {},
             "location": "test",
             "phone": "test",
             "description": "test"

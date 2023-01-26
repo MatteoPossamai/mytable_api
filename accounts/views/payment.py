@@ -12,6 +12,8 @@ from restaurant.models.restaurant import Restaurant
 from utilities import IsLogged
 from accounts.models.restaurant_user import RestaurantUser
 from accounts.serializers.restaurant_user import RestaurantUserSerializer
+from utilities import IsLogged
+
 
 stripe.api_key = STRIPE_SECRET
 
@@ -23,7 +25,10 @@ class CreateCheckoutSessionView(views.APIView):
 
     def post(self, request, format=None):
         try:
-            restaurant_id = request.data.get('restaurant_id')
+
+            email= request.data.get('customer_email')
+            customer = RestaurantUser.objects.get(email=email)
+            print(customer)
 
             keys = request.POST.getlist('lookup_key')
 
@@ -41,16 +46,18 @@ class CreateCheckoutSessionView(views.APIView):
                 })
 
             checkout_session = stripe.checkout.Session.create(
-                client_reference_id=restaurant_id,
+                customer_email=customer.email,
                 line_items=items,
                 mode='subscription',
-                success_url=settings.DOMAIN_URL +
+                success_url= "http://localhost:3000/payment/" +
                 '?success=true&session_id={CHECKOUT_SESSION_ID}',
                 cancel_url=settings.DOMAIN_URL+ '?canceled=true',
                 subscription_data={
                     'trial_period_days': 30,
                 },
             )
+
+            print(checkout_session)
             return redirect(checkout_session.url)
         except Exception as e:
             print(e)
@@ -62,8 +69,11 @@ class CreatePortalSessionView(views.APIView):
     Description: Create a portal session for a customer
     """
     def post(self, request, format=None):
+        print("\n\n\n")
         checkout_session_id = request.data.get('session_id')
         checkout_session = stripe.checkout.Session.retrieve(checkout_session_id)
+
+        print(checkout_session)
 
         return_url = settings.DOMAIN_URL
 
@@ -78,9 +88,16 @@ class CustomerPortalView(views.APIView):
     """
     Description: Customer portal
     """
+    permission_classes = [IsLogged]
+
     def post(self, request, format=None):
+        token = request.headers.get('token')
+        decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+        user_id = decoded['user_id']
+        user = RestaurantUser.objects.get(id=user_id)
+
         return_url = settings.DOMAIN_URL
-        customer_id = []
+        customer_id = user.stripe_customer_id
 
         session = stripe.billing_portal.Session.create(
             customer=customer_id,
@@ -159,37 +176,5 @@ class GetProductsView(views.APIView):
         try: 
             products = stripe.Price.list(limit=5)
             return JsonResponse(products, safe=False)
-        except Exception as e:
-            return JsonResponse({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-class DeleteSubscriptionView(views.APIView):
-    """
-    Description: Delete a subscription
-    """
-    permission_classes = [IsLogged]
-
-    def post(self, request, format=None):
-        try:
-            token = request.headers.get('token')
-            decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
-
-            user_id = decoded['user']
-            user = RestaurantUser.objects.get(id=user_id)
-
-            # Get all his restaurants
-            serialized_user = RestaurantUserSerializer(user)
-            restaurant_id = serialized_user.data.get('restaurants')[0]
-            
-            restaurant = Restaurant.objects.get(id=restaurant_id)
-            restaurant.plan({
-                "menu_plan": 0,
-                "image_number": 0,
-                "client_order": 0,  
-                "waiter_order": 0,
-            })
-
-            return JsonResponse({}, status=status.HTTP_200_OK)
-
         except Exception as e:
             return JsonResponse({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

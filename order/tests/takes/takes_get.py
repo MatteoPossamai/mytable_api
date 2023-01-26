@@ -23,7 +23,6 @@ class TakesGetTest(APITestCase):
 
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,
@@ -103,7 +102,6 @@ class TakesGetTest(APITestCase):
     def test_get_takes_by_order_empty(self):
         res = Restaurant.objects.create(
             name="test123",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,

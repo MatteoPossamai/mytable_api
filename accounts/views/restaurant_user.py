@@ -40,6 +40,15 @@ class RestaurantUserCreateView(views.APIView):
                 password=Encryptor.encrypt(password),
             )
 
+            # Create the stripe customer if the call is not for the test user
+            if data.get('email') != "test@gtest.com":
+                customer = stripe.Customer.create(
+                    email=data.get('email'),
+                    name=data.get('username'),
+                )
+
+                user.stripe_customer_id = customer.id
+
             # Save the user
             user.save()
 
@@ -50,7 +59,8 @@ class RestaurantUserCreateView(views.APIView):
 
             # Return the success, and the token itself
             return JsonResponse({'token': token}, status=status.HTTP_201_CREATED)
-        except IntegrityError:
+        except IntegrityError as e:
+            print(e)
             return JsonResponse({'error': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:

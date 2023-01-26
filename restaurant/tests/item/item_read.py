@@ -23,7 +23,6 @@ class ItemReadSingleTest(APITestCase):
 
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,
@@ -91,7 +90,6 @@ class ItemReadItemMultiple(APITestCase):
 
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,
@@ -150,7 +148,6 @@ class ItemReadByRestaurant(APITestCase):
 
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,
@@ -177,7 +174,6 @@ class ItemReadByRestaurant(APITestCase):
 
         self.res2 = Restaurant.objects.create(
             name="test2",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,
@@ -266,7 +262,6 @@ class ItemReadByRestaurantActive(APITestCase):
 
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,
@@ -329,7 +324,6 @@ class ItemReadByCategory(APITestCase):
 
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,
@@ -427,7 +421,6 @@ class ItemReadByCategoryActive(APITestCase):
 
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,
