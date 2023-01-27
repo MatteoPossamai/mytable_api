@@ -23,7 +23,6 @@ class OrderReadAllTestCase(APITestCase):
 
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,
@@ -53,7 +52,7 @@ class OrderReadAllTestCase(APITestCase):
     def test_order_delete_not_owner(self):
         self.data = {
             'username': 'test123',
-            'email': 'test123@test.com',
+            'email': 'test@test.com',
             'password': 'password123'
         }
         response = self.client.post('/api/v1/restaurant_user/signup/', self.data, format='json')
@@ -62,7 +61,6 @@ class OrderReadAllTestCase(APITestCase):
 
         self.restaurant1 = Restaurant.objects.create(
             name="test2",
-            plan={},
             location="test",
             phone="test",
             owner=self.user1,
@@ -103,7 +101,7 @@ class DeleteAllTest(APITestCase):
 
         self.data = {
             'username': 'test123',
-            'email': 'test123@test.com',
+            'email': 'test@test.com',
             'password': 'password123'
         }
         response = self.client.post('/api/v1/restaurant_user/signup/', self.data, format='json')
@@ -113,7 +111,6 @@ class DeleteAllTest(APITestCase):
 
         self.restaurant = Restaurant.objects.create(
             name="test",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,

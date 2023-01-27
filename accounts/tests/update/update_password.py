@@ -11,12 +11,12 @@ class RestaurantUserUpdatePassword(APITestCase):
     def setUp(self):
         self.data = {
             'username': 'test',
-            'email': 'test123@test.com',
+            'email': 'test@test.com',
             'password': 'password11'
         }
 
         self.data_logged = {
-            "user": "test123@test.com",
+            "user": "test@test.com",
             'password': '112233ddtest2'
         }
 
@@ -33,7 +33,7 @@ class RestaurantUserUpdatePassword(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         # Check with ORM
-        user = RestaurantUser.objects.get(email="test123@test.com")
+        user = RestaurantUser.objects.get(email="test@test.com")
         self.assertEqual(user.password, Encryptor.encrypt('112233ddtest2'))
 
     def test_update_password_not_logged(self):
@@ -50,7 +50,7 @@ class RestaurantUserUpdatePassword(APITestCase):
         token = response.json().get('token')
 
         bad_data = {
-            "user": "test123@test.com",
+            "user": "test@test.com",
         }
 
         # Update
@@ -67,7 +67,7 @@ class RestaurantUserUpdatePassword(APITestCase):
         token = response.json().get('token')
 
         bad_data = {
-            "user": "test123@test.com",
+            "user": "test@test.com",
             'password': '123'
         }
         # Update

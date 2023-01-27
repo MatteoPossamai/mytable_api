@@ -4,7 +4,6 @@ from accounts.models import RestaurantUser
 
 class Restaurant(models.Model):
     name = models.CharField(max_length=100, unique=True)
-    plan = models.JSONField()
     location = models.CharField(max_length=100)
     phone = models.CharField(max_length=100)
     description = models.TextField(default=None, null=True)

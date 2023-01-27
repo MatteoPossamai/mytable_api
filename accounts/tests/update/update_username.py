@@ -8,12 +8,12 @@ class RestaurantUserUpdateUsername(APITestCase):
     def setUp(self):
         self.data = {
             'username': 'test',
-            'email': 'test123@test.com',
+            'email': 'test@test.com',
             'password': 'password11'
         }
 
         self.data_logged = {
-            "user": "test123@test.com",
+            "user": "test@test.com",
             'username': 'test2'
         }
 
@@ -30,7 +30,7 @@ class RestaurantUserUpdateUsername(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
         # Check with ORM
-        user = RestaurantUser.objects.get(email="test123@test.com")
+        user = RestaurantUser.objects.get(email="test@test.com")
         self.assertEqual(user.username, 'test2')
 
     def test_update_username_not_logged(self):
@@ -47,7 +47,7 @@ class RestaurantUserUpdateUsername(APITestCase):
         token = response.json().get('token')
 
         bad_data = {
-            "user": "test123@test.com",
+            "user": "test@test.com",
         }
 
         # Update
@@ -65,7 +65,7 @@ class RestaurantUserUpdateUsername(APITestCase):
 
         data2 = {
             'username': 'test2',
-            'email': 'test12322@test.com',
+            'email': 'test123@test.com',
             'password': 'password11'
         }
         

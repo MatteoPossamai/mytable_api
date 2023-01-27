@@ -30,7 +30,6 @@ class CategoryDeleteTest(APITestCase):
 
         self.restaurant = Restaurant.objects.create(
             name="test1",
-            plan={},
             location="test",
             phone="test",
             owner=self.user,

@@ -23,34 +23,33 @@ class CreateCheckoutSessionView(views.APIView):
 
     def post(self, request, format=None):
         try:
-            restaurant_id = request.data.get('restaurant_id')
+            # For now is fine sending the email, but in the future we should send the token
+            email= request.data.get('customer_email')
+            customer = RestaurantUser.objects.get(email=email)
 
-            keys = request.POST.getlist('lookup_key')
-
-            prices = stripe.Price.list(
-                lookup_keys=keys,
-                expand=['data.product']
-            )
+            keys = request.POST.getlist('price')
             
             items = []
 
-            for price in prices.data:
+            for price in keys:
                 items.append({
-                    'price': price.id,
+                    'price': price,
                     'quantity': 1,
                 })
 
             checkout_session = stripe.checkout.Session.create(
-                client_reference_id=restaurant_id,
+                customer=customer.stripe_customer_id,
                 line_items=items,
                 mode='subscription',
-                success_url=settings.DOMAIN_URL +
+                success_url= "http://localhost:3000/payment/" +
                 '?success=true&session_id={CHECKOUT_SESSION_ID}',
                 cancel_url=settings.DOMAIN_URL+ '?canceled=true',
                 subscription_data={
                     'trial_period_days': 30,
                 },
             )
+
+            print(checkout_session)
             return redirect(checkout_session.url)
         except Exception as e:
             print(e)
@@ -78,9 +77,16 @@ class CustomerPortalView(views.APIView):
     """
     Description: Customer portal
     """
+    permission_classes = [IsLogged]
+
     def post(self, request, format=None):
+        token = request.headers.get('token')
+        decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+        user_id = decoded['user_id']
+        user = RestaurantUser.objects.get(id=user_id)
+
         return_url = settings.DOMAIN_URL
-        customer_id = []
+        customer_id = user.stripe_customer_id
 
         session = stripe.billing_portal.Session.create(
             customer=customer_id,
@@ -132,8 +138,6 @@ class WebhookView(views.APIView):
             restaurant.stripe_subscription_id = stripe_subscription_id
             restaurant.save()
 
-            print()
-
         elif event_type == 'invoice.paid':
             # Continue to provision the subscription as payments continue to be made.
             # Store the status in your database and check when a user accesses your service.
@@ -163,33 +167,29 @@ class GetProductsView(views.APIView):
             return JsonResponse({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class DeleteSubscriptionView(views.APIView):
+class GetCustomerSubscription(views.APIView):
     """
-    Description: Delete a subscription
+    Description: Get customer subscription
     """
     permission_classes = [IsLogged]
 
-    def post(self, request, format=None):
-        try:
+    def get(self, request, format=None):
+        try: 
             token = request.headers.get('token')
             decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
-
-            user_id = decoded['user']
+            user_id = decoded['user_id']
             user = RestaurantUser.objects.get(id=user_id)
+            customer_id = user.stripe_customer_id
 
-            # Get all his restaurants
-            serialized_user = RestaurantUserSerializer(user)
-            restaurant_id = serialized_user.data.get('restaurants')[0]
-            
-            restaurant = Restaurant.objects.get(id=restaurant_id)
-            restaurant.plan({
-                "menu_plan": 0,
-                "image_number": 0,
-                "client_order": 0,  
-                "waiter_order": 0,
-            })
+            # Get the subscription
+            subscription = stripe.Subscription.list(customer=customer_id)
 
-            return JsonResponse({}, status=status.HTTP_200_OK)
+            valid_subscription = []
+            for sub in subscription.data:
+                if sub.status == 'active' or sub.status == 'trialing' or sub.status == 'incomplete_expired':
+                    valid_subscription.append(sub)
 
+            return JsonResponse({"data":valid_subscription, "number": len(valid_subscription)}, status=status.HTTP_200_OK)
         except Exception as e:
             return JsonResponse({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

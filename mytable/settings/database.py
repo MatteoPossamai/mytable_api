@@ -11,7 +11,7 @@ from .admin import DEBUG
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {}
-if DEBUG:
+if not DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',

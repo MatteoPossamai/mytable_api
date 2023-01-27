@@ -6,7 +6,7 @@ class RestaurantUserLogoutUser(APITestCase):
     def setUp(self):
         self.data = {
             'username': 'test',
-            'email': 'test123@test.com',
+            'email': 'test@test.com',
             'password': 'password11'
         }
 

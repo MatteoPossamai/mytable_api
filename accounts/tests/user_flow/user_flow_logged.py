@@ -8,12 +8,12 @@ class RestaurantUserLoggedUser(APITestCase):
     def setUp(self):
         self.data = {
             'username': 'test',
-            'email': 'test123@test.com',
+            'email': 'test@test.com',
             'password': 'password11'
         }
 
         self.data_logged = {
-            "user": "test123@test.com"
+            "user": "test@test.com"
         }
 
     def test_logged_user_success(self):
