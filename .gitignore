@@ -21,6 +21,7 @@ data.json
 secret_key.txt
 jwt_secret.txt
 stripe_secret.txt
+db_password.txt
 
 .devcontainer/
 dump.rdb
