@@ -22,8 +22,10 @@ EXPOSE 5000
 COPY --chown=devuser:devuser . .
 
 # Run manage.py runserver when the container launches
-CMD ["python3", "manage.py", "runserver"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "mytable.wsgi"]
 
 # docker build -t poss03251/my_table_api:1.0 .
 
 # docker run -d -p 5000:5000 poss03251/my_table_api:1.0
+
+# http://164.90.228.249:5000/api/v1/restaurant/
