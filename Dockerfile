@@ -22,7 +22,7 @@ EXPOSE 5000
 COPY --chown=devuser:devuser . .
 
 # Run manage.py runserver when the container launches
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "mytable.wsgi"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "-c", "gunicorn.conf.py", "mytable.wsgi"]
 
 # docker build -t poss03251/my_table_api:1.0 .
 
