@@ -15,6 +15,7 @@ ALLOWED_HOSTS = eval(os.getenv("ALLOWED_HOSTS"))
 MIDDLEWARE = [
     # For CSRF in future 
     # https://docs.djangoproject.com/en/4.1/ref/csrf/#ajax
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

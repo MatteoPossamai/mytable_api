@@ -12,5 +12,7 @@ elif os.getenv('CORS_ALLOWED_ORIGIN_REGEXES') is not None:
 elif os.getenv("CORS_ALLOW_ALL_ORIGINS") is not None:
     CORS_ALLOW_ALL_ORIGINS = eval(os.getenv("CORS_ALLOW_ALL_ORIGINS"))
 
-CORS_ALLOW_HEADERS = list(default_headers) + eval(os.getenv('CORS_ALLOW_HEADERS'))
+#CORS_ALLOW_HEADERS = list(default_headers) + eval(os.getenv('CORS_ALLOW_HEADERS'))
 CORS_ALLOW_METHODS = eval(os.getenv('CORS_ALLOW_METHODS'))
+
+CORS_ORIGIN_ALLOW_ALL = True

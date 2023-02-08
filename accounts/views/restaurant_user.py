@@ -29,13 +29,13 @@ class RestaurantUserCreateView(views.APIView):
         try:
             # Check if the password is valid
             password = data.get('password')
-            password_check = valid_password(password)
-            if not password_check[0]:
+            password_check, error = valid_password(password)
+            if not password_check:
+
                 return JsonResponse({'error': password_check[1]}, status=status.HTTP_400_BAD_REQUEST)
 
             # Create the user
             user = RestaurantUser.objects.create(
-                username=data.get('username'),
                 email=data.get('email'),
                 password=Encryptor.encrypt(password),
             )
