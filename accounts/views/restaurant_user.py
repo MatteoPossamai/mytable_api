@@ -31,12 +31,13 @@ class RestaurantUserCreateView(views.APIView):
             password = data.get('password')
             password_check, error = valid_password(password)
             if not password_check:
-
+                print("password_check", password_check)
                 return JsonResponse({'error': password_check[1]}, status=status.HTTP_400_BAD_REQUEST)
 
             # Create the user
             user = RestaurantUser.objects.create(
                 email=data.get('email'),
+                username=data.get('email'),
                 password=Encryptor.encrypt(password),
             )
 
@@ -60,6 +61,7 @@ class RestaurantUserCreateView(views.APIView):
             # Return the success, and the token itself
             return JsonResponse({'token': token}, status=status.HTTP_201_CREATED)
         except IntegrityError as e:
+            print(e)
             return JsonResponse({'error': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
@@ -183,6 +185,9 @@ class RestaurantUserLoginView(views.APIView):
             token = request.headers.get('token')
             user = data.get('email')
             password = data.get('password')
+            print(token)
+            print(user)
+            print(password)
 
             # Check via redis if the token is still valid, checking if it is
             # in the cache, otherwise, it is time to create a new one
@@ -191,6 +196,7 @@ class RestaurantUserLoginView(views.APIView):
             
             # Get the user from the database
             user = RestaurantUser.objects.get(email=user)
+            print(user)
 
             # Check if the password is correct
             if not Encryptor.check_password(password, user.password):
@@ -207,8 +213,10 @@ class RestaurantUserLoginView(views.APIView):
 
         # If user does not exists
         except ObjectDoesNotExist:
+            print('User does not exists')
             return JsonResponse({'error': 'User does not exists'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
+            print(e)
             return JsonResponse({'error': f'{e}'}, status=status.HTTP_400_BAD_REQUEST) 
             
 

@@ -39,6 +39,9 @@ class IsLogged(permissions.BasePermission):
         """
         Description: Check if the user is logged by checking the token in headers
         """
+        print(request)
+        print(request.headers)
+        print(request.headers.get('token'))
         token = request.headers.get('token')
         return token is not None and is_token_valid(token)
 
