@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.http.response import JsonResponse
 from rest_framework import generics, status, views
+from restaurant.models.restaurant import Restaurant
 from utilities.tasks import save_user_token_to_redis, is_token_valid, delete_token_from_redis
 import jwt
 from django.db import IntegrityError
@@ -185,9 +186,6 @@ class RestaurantUserLoginView(views.APIView):
             token = request.headers.get('token')
             user = data.get('email')
             password = data.get('password')
-            print(token)
-            print(user)
-            print(password)
 
             # Check via redis if the token is still valid, checking if it is
             # in the cache, otherwise, it is time to create a new one
@@ -196,7 +194,10 @@ class RestaurantUserLoginView(views.APIView):
             
             # Get the user from the database
             user = RestaurantUser.objects.get(email=user)
-            print(user)
+            
+            # Get the restaurant of the user
+            restaurant = Restaurant.objects.filter(owner=user)
+            print(restaurant)
 
             # Check if the password is correct
             if not Encryptor.check_password(password, user.password):
@@ -209,11 +210,12 @@ class RestaurantUserLoginView(views.APIView):
             save_user_token_to_redis(token)
 
             # Return the success, and the token itself
-            return JsonResponse({'token': token}, status=status.HTTP_200_OK)
+            print({'token': token, 'restaurant_id': restaurant[0].id})
+            return JsonResponse({'token': token, 'restaurant_id': restaurant[0].id}, status=status.HTTP_200_OK)
 
         # If user does not exists
-        except ObjectDoesNotExist:
-            print('User does not exists')
+        except ObjectDoesNotExist as e:
+            print(e)
             return JsonResponse({'error': 'User does not exists'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             print(e)
