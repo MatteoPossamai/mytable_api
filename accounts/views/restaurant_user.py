@@ -32,7 +32,6 @@ class RestaurantUserCreateView(views.APIView):
             password = data.get('password')
             password_check, error = valid_password(password)
             if not password_check:
-                print("password_check", password_check)
                 return JsonResponse({'error': password_check[1]}, status=status.HTTP_400_BAD_REQUEST)
 
             # Create the user
@@ -197,7 +196,6 @@ class RestaurantUserLoginView(views.APIView):
             
             # Get the restaurant of the user
             restaurant = Restaurant.objects.filter(owner=user)
-            print(restaurant)
 
             # Check if the password is correct
             if not Encryptor.check_password(password, user.password):
@@ -210,7 +208,6 @@ class RestaurantUserLoginView(views.APIView):
             save_user_token_to_redis(token)
 
             # Return the success, and the token itself
-            print({'token': token, 'restaurant_id': restaurant[0].id})
             return JsonResponse({'token': token, 'restaurant_id': restaurant[0].id}, status=status.HTTP_200_OK)
 
         # If user does not exists

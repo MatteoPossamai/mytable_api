@@ -49,7 +49,6 @@ class CreateCheckoutSessionView(views.APIView):
                 },
             )
 
-            print(checkout_session)
             return redirect(checkout_session.url)
         except Exception as e:
             print(e)
