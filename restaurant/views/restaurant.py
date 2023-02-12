@@ -43,7 +43,6 @@ class RestaurantGetView(generics.RetrieveAPIView):
     """
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
-    permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
 
 class RestaurantPutView(generics.RetrieveUpdateDestroyAPIView):

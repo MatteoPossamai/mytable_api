@@ -155,10 +155,6 @@ class CategoryReadAllActive(APITestCase):
         self.assertAlmostEqual(response.json().get('categories')[0].get('name'), 'test')
         self.assertAlmostEqual(response.json().get('categories')[0].get('isActive'), True)
         self.assertAlmostEqual(response.json().get('categories')[0].get('restaurant'), self.identificator)
-    
-    def test_restaurant_get_all_active_no_auth(self):
-        response = self.client.get(f'/api/v1/category/restaurant_category/active/{self.identificator}/')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     
 class CategoryReadAllRestaurant(APITestCase):
@@ -206,7 +202,3 @@ class CategoryReadAllRestaurant(APITestCase):
         self.assertAlmostEqual(response.json().get('categories')[0].get('name'), 'test')
         self.assertAlmostEqual(response.json().get('categories')[0].get('isActive'), True)
         self.assertAlmostEqual(response.json().get('categories')[0].get('restaurant'), self.identificator)
-
-    def test_restaurant_get_all_active_no_auth(self):
-        response = self.client.get(f'/api/v1/category/restaurant_category/{self.identificator}/')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

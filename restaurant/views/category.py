@@ -56,7 +56,6 @@ class CategoryGetAllActiveByRestaurantView(views.APIView):
     """
     Description: returns all the active categories of a restaurant
     """
-    permission_classes = [IsLogged, IsOwnerOrReadOnly]
     
     def get(self, request, pk, format=None):
         try:

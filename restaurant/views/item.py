@@ -62,7 +62,6 @@ class ItemGetByRestaurantActiveView(views.APIView):
     """
     Description: returns all the active items of a restaurant
     """
-    permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
     def get(self, request, pk, format=None):
         try: 
@@ -105,7 +104,6 @@ class ItemGetByCategoryActiveView(views.APIView):
     """
     Description: returns all the active items of a category
     """
-    permission_classes = [IsLogged, IsOwnerOrReadOnly]
 
     def get(self, request, pk, format=None):
         try: 
