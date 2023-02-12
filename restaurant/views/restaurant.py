@@ -1,6 +1,7 @@
 from rest_framework import generics, status, views
 from django.http.response import JsonResponse
 import jwt
+import stripe
 
 from ..models.restaurant import Restaurant
 from ..serializers.restaurant import RestaurantSerializer
@@ -43,6 +44,31 @@ class RestaurantGetView(generics.RetrieveAPIView):
     """
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
+
+    def get(self, request, pk, *args, **kwargs):
+        restaurant = self.get_object()
+        serializer = RestaurantSerializer(restaurant)
+
+        # Get the owner of the restaurant
+        owner = restaurant.owner.stripe_customer_id
+        print(owner)
+        
+        # Get the subscription of the owner from stripe
+        subscription = stripe.Subscription.list(customer=owner)
+
+        valid_subscription = []
+        for sub in subscription.data:
+            if sub.status == 'active' or sub.status == 'trialing' or sub.status == 'incomplete_expired':
+                valid_subscription.append(sub)
+
+        # Create data to allow some things
+        # When all is fine, need to check if the restaurant is active and then compute everything
+        data = {
+            "client_order": True,
+            "waiter_order": True,
+        }
+
+        return JsonResponse({"restaurant":serializer.data, "auth": data}, status=status.HTTP_200_OK)
 
 
 class RestaurantPutView(generics.RetrieveUpdateDestroyAPIView):
