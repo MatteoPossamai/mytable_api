@@ -243,3 +243,21 @@ class RestaurantUserLogoutView(views.APIView):
             return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
         except:
             return JsonResponse({'error': 'Invalid token'}, status=status.HTTP_403_FORBIDDEN)
+
+
+class GetRestaurantUserByRestaurant(views.APIView):
+    """
+    Description: returns a single user instance
+    """
+    
+    def get(self, request, restaurant_id, format=None):
+        try:
+            restaurant = Restaurant.objects.get(id=restaurant_id)
+            user = RestaurantUser.objects.get(id=restaurant.owner.id)
+            serializer = RestaurantUserSerializer(user)
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        except ObjectDoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            
+            return JsonResponse({'error': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)

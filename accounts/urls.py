@@ -3,7 +3,8 @@ from django.urls import path, include
 from .views import RestaurantUserCreateView, RestaurantUserDeleteView, \
     RestaurantUserGetAllView, RestaurantUserGetView, RestaurantUserPutUser, \
     RestaurantUserLoginView, RestaurantUserLogoutView, RestaurantUserLogged, CreateCheckoutSessionView, \
-    WebhookView, CreatePortalSessionView, GetProductsView, CustomerPortalView, GetCustomerSubscription
+    WebhookView, CreatePortalSessionView, GetProductsView, CustomerPortalView, GetCustomerSubscription, \
+    GetRestaurantUserByRestaurant
 
 
 current_version = 'v1'
@@ -13,6 +14,7 @@ restaurant_user_urlpatterns = [
     # Read
     path('', RestaurantUserGetAllView.as_view(), name='restaurant_user_get_all'),
     path('get/<str:email>/', RestaurantUserGetView.as_view(), name='restaurant_user_get'),
+    path('get-restaurant/<int:restaurant_id>/', GetRestaurantUserByRestaurant.as_view(), name='restaurant_user_get_by_restaurant'),
     # Update username or password
     path('put/', RestaurantUserPutUser.as_view(), name='restaurant_user_put'),
     # Delete
