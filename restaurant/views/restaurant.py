@@ -51,7 +51,6 @@ class RestaurantGetView(generics.RetrieveAPIView):
 
         # Get the owner of the restaurant
         owner = restaurant.owner.stripe_customer_id
-        print(owner)
         
         # Get the subscription of the owner from stripe
         subscription = stripe.Subscription.list(customer=owner)

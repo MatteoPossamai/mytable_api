@@ -4,7 +4,7 @@ from .views import RestaurantUserCreateView, RestaurantUserDeleteView, \
     RestaurantUserGetAllView, RestaurantUserGetView, RestaurantUserPutUser, \
     RestaurantUserLoginView, RestaurantUserLogoutView, RestaurantUserLogged, CreateCheckoutSessionView, \
     WebhookView, CreatePortalSessionView, GetProductsView, CustomerPortalView, GetCustomerSubscription, \
-    GetRestaurantUserByRestaurant
+    GetRestaurantUserByRestaurant, RestaurantUserChangePassword
 
 
 current_version = 'v1'
@@ -17,6 +17,7 @@ restaurant_user_urlpatterns = [
     path('get-restaurant/<int:restaurant_id>/', GetRestaurantUserByRestaurant.as_view(), name='restaurant_user_get_by_restaurant'),
     # Update username or password
     path('put/', RestaurantUserPutUser.as_view(), name='restaurant_user_put'),
+    path('change-password/', RestaurantUserChangePassword.as_view(), name='restaurant_user_change_password'),
     # Delete
     path('delete/', RestaurantUserDeleteView.as_view(), name='restaurant_user_delete'),
     # Signup, Login, Logout, Logged

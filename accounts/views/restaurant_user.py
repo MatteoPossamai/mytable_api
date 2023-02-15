@@ -10,7 +10,7 @@ import stripe
 
 from ..models.restaurant_user import RestaurantUser
 from ..serializers.restaurant_user import RestaurantUserSerializer
-from utilities import Encryptor, IsLogged, valid_password, valid_username
+from utilities import Encryptor, IsLogged, valid_password
 from mytable.settings import JWT_SECRET
 from mytable.settings import STRIPE_SECRET
 
@@ -108,18 +108,10 @@ class RestaurantUserPutUser(views.APIView):
             user_pk = decoded['user'] 
 
             # Get the user email from the request
-            new_username = request.data.get('username')
             new_password = request.data.get('password')
 
             # Get the user to modify
             user = RestaurantUser.objects.get(id=user_pk)
-
-            # Handle username change
-            valid, error = valid_username(new_username)
-            if new_username and valid:
-                user.username = new_username
-            elif new_username:
-                return JsonResponse({'error': error}, status=status.HTTP_400_BAD_REQUEST)
 
             # Handle password change
             valid, error = valid_password(new_password)
@@ -261,3 +253,48 @@ class GetRestaurantUserByRestaurant(views.APIView):
         except Exception as e:
             
             return JsonResponse({'error': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
+
+class RestaurantUserChangePassword(views.APIView):
+    """
+    Description: handles password changes
+    """
+    permission_classes = [IsLogged]
+
+    def put(self, request, format=None):
+        try:
+
+            token = request.headers.get('token')
+            decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+            user_pk = decoded['user'] 
+
+            # Get the user email from the request
+            old_password = request.data.get('old_password')
+            new_password = request.data.get('password')
+
+            # Check if the old password is correct
+            user = RestaurantUser.objects.get(id=user_pk)
+            if not Encryptor.check_password(old_password, user.password):
+                return JsonResponse({'error': 'Incorrect password given'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Handle password change
+            valid, error = valid_password(new_password)
+            if new_password and valid:
+                user.password = Encryptor.encrypt(new_password)
+            elif new_password:
+                return JsonResponse({'error': error}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Save modifications
+            user.save()
+
+            # Return the success deletion
+            return JsonResponse({}, status=status.HTTP_204_NO_CONTENT)
+
+        except ObjectDoesNotExist:
+            return JsonResponse({'error': 'User does not exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except IntegrityError:
+            return JsonResponse({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            
+            return JsonResponse({'error': 'Something went wrong'}, status=status.HTTP_400_BAD_REQUEST)
