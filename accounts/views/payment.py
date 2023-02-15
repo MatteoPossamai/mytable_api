@@ -12,6 +12,7 @@ from restaurant.models.restaurant import Restaurant
 from utilities import IsLogged
 from accounts.models.restaurant_user import RestaurantUser
 from accounts.serializers.restaurant_user import RestaurantUserSerializer
+from utilities.tasks import is_token_valid
 
 stripe.api_key = STRIPE_SECRET
 
@@ -60,6 +61,7 @@ class CreatePortalSessionView(views.APIView):
     Description: Create a portal session for a customer
     """
     def post(self, request, format=None):
+        print("HERE")
         checkout_session_id = request.data.get('session_id')
         checkout_session = stripe.checkout.Session.retrieve(checkout_session_id)
 
@@ -76,22 +78,24 @@ class CustomerPortalView(views.APIView):
     """
     Description: Customer portal
     """
-    permission_classes = [IsLogged]
+    #permission_classes = [IsLogged]
 
     def post(self, request, format=None):
-        token = request.headers.get('token')
-        decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
-        user_id = decoded['user_id']
-        user = RestaurantUser.objects.get(id=user_id)
-
         return_url = settings.DOMAIN_URL
-        customer_id = user.stripe_customer_id
+        token = request.data.get("token")
 
-        session = stripe.billing_portal.Session.create(
-            customer=customer_id,
-            return_url=return_url,
-        )       
-        return redirect(session.url, code=303)
+        if token is not None and is_token_valid(token):
+            decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+            user_id = decoded['user']
+            user = RestaurantUser.objects.get(id=user_id)
+            customer_id = user.stripe_customer_id
+            session = stripe.billing_portal.Session.create(
+                customer=customer_id,
+                return_url=return_url,
+            )   
+            return redirect(session.url, code=303)
+        else:
+            return redirect(return_url, code=403)
 
 
 class WebhookView(views.APIView):
@@ -160,7 +164,7 @@ class GetProductsView(views.APIView):
 
     def get(self, request, format=None):
         try: 
-            products = stripe.Price.list(limit=5)
+            products = stripe.Product.list(limit=5, expand=['data.default_price'])
             return JsonResponse(products, safe=False)
         except Exception as e:
             return JsonResponse({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

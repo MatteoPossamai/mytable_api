@@ -61,7 +61,6 @@ class RestaurantUserCreateView(views.APIView):
             # Return the success, and the token itself
             return JsonResponse({'token': token}, status=status.HTTP_201_CREATED)
         except IntegrityError as e:
-            print(e)
             return JsonResponse({'error': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
@@ -204,10 +203,8 @@ class RestaurantUserLoginView(views.APIView):
 
         # If user does not exists
         except ObjectDoesNotExist as e:
-            print(e)
             return JsonResponse({'error': 'User does not exists'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            print(e)
             return JsonResponse({'error': f'{e}'}, status=status.HTTP_400_BAD_REQUEST) 
             
 
