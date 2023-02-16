@@ -180,19 +180,26 @@ class GetCustomerSubscription(views.APIView):
         try: 
             token = request.headers.get('token')
             decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
-            user_id = decoded['user_id']
+            user_id = decoded['user']
             user = RestaurantUser.objects.get(id=user_id)
             customer_id = user.stripe_customer_id
 
             # Get the subscription
             subscription = stripe.Subscription.list(customer=customer_id)
 
-            valid_subscription = []
+            prices = []
+            products = []
+
             for sub in subscription.data:
                 if sub.status == 'active' or sub.status == 'trialing' or sub.status == 'incomplete_expired':
-                    valid_subscription.append(sub)
+                    items = stripe.SubscriptionItem.list(
+                        subscription=sub.id,
+                    )
 
-            return JsonResponse({"data":valid_subscription, "number": len(valid_subscription)}, status=status.HTTP_200_OK)
+                    for item in items.data:
+                        prices.append(item.price.id)
+                        products.append(item.price.product)
+
+            return JsonResponse({"prices":prices, "products": products}, status=status.HTTP_200_OK)
         except Exception as e:
             return JsonResponse({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
