@@ -27,6 +27,7 @@ class CreateCheckoutSessionView(views.APIView):
             # For now is fine sending the email, but in the future we should send the token
             email= request.data.get('customer_email')
             customer = RestaurantUser.objects.get(email=email)
+            trial_period = 30 if not customer.has_used_free_trial else 0
 
             keys = request.POST.getlist('price')
             
@@ -38,6 +39,8 @@ class CreateCheckoutSessionView(views.APIView):
                     'quantity': 1,
                 })
 
+            sub_data = {'trial_period_days': trial_period} if trial_period > 0 else {}
+
             checkout_session = stripe.checkout.Session.create(
                 customer=customer.stripe_customer_id,
                 line_items=items,
@@ -45,10 +48,11 @@ class CreateCheckoutSessionView(views.APIView):
                 success_url= "http://localhost:3000/payment/" +
                 '?success=true&session_id={CHECKOUT_SESSION_ID}',
                 cancel_url=settings.DOMAIN_URL+ '?canceled=true',
-                subscription_data={
-                    'trial_period_days': 30,
-                },
+                subscription_data=sub_data,
             )
+
+            customer.has_used_free_trial = True
+            customer.save()
 
             return redirect(checkout_session.url)
         except Exception as e:
@@ -182,6 +186,7 @@ class GetCustomerSubscription(views.APIView):
             decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
             user_id = decoded['user']
             user = RestaurantUser.objects.get(id=user_id)
+            print(user)
             customer_id = user.stripe_customer_id
 
             # Get the subscription

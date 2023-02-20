@@ -251,6 +251,7 @@ class GetRestaurantUserByRestaurant(views.APIView):
             
             return JsonResponse({'error': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class RestaurantUserChangePassword(views.APIView):
     """
     Description: handles password changes
