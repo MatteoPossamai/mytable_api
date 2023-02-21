@@ -10,7 +10,8 @@ BASE_APPS = [
 THIRD_PARTY_APPS = [
     "django_grpc_framework",
     "corsheaders",
-    "rest_framework"
+    "rest_framework",
+    "channels",
 ]
 
 LOCAL_APPS = [
