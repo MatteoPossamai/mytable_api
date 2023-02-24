@@ -29,6 +29,11 @@ class CreateCheckoutSessionView(views.APIView):
             customer = RestaurantUser.objects.get(email=email)
             trial_period = 30 if not customer.has_used_free_trial else 0
 
+            # Get the restaurant id of the customer
+            restaurant = Restaurant.objects.get(owner=customer)
+
+            return_url = settings.FRONTEND_MAIN_PAGE + f"/{restaurant.id}"
+
             keys = request.POST.getlist('price')
             
             items = []
@@ -45,9 +50,8 @@ class CreateCheckoutSessionView(views.APIView):
                 customer=customer.stripe_customer_id,
                 line_items=items,
                 mode='subscription',
-                success_url= "http://localhost:3000/payment/" +
-                '?success=true&session_id={CHECKOUT_SESSION_ID}',
-                cancel_url=settings.DOMAIN_URL+ '?canceled=true',
+                success_url= return_url,
+                cancel_url=return_url,
                 subscription_data=sub_data,
             )
 
@@ -55,8 +59,7 @@ class CreateCheckoutSessionView(views.APIView):
             customer.save()
 
             return redirect(checkout_session.url)
-        except Exception as e:
-            print(e)
+        except Exception:
             return JsonResponse({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -65,11 +68,10 @@ class CreatePortalSessionView(views.APIView):
     Description: Create a portal session for a customer
     """
     def post(self, request, format=None):
-        print("HERE")
         checkout_session_id = request.data.get('session_id')
         checkout_session = stripe.checkout.Session.retrieve(checkout_session_id)
 
-        return_url = settings.DOMAIN_URL
+        return_url = settings.FRONTEND_LOGIN_PAGE
 
         portalSession = stripe.billing_portal.Session.create(
             customer=checkout_session.customer,
@@ -82,10 +84,8 @@ class CustomerPortalView(views.APIView):
     """
     Description: Customer portal
     """
-    #permission_classes = [IsLogged]
 
     def post(self, request, format=None):
-        return_url = settings.DOMAIN_URL
         token = request.data.get("token")
 
         if token is not None and is_token_valid(token):
@@ -93,6 +93,11 @@ class CustomerPortalView(views.APIView):
             user_id = decoded['user']
             user = RestaurantUser.objects.get(id=user_id)
             customer_id = user.stripe_customer_id
+
+            # Get the restaurant id of the customer
+            restaurant = Restaurant.objects.get(owner=user)
+            return_url = settings.FRONTEND_MAIN_PAGE + f"/{restaurant.id}"
+
             session = stripe.billing_portal.Session.create(
                 customer=customer_id,
                 return_url=return_url,
@@ -186,7 +191,6 @@ class GetCustomerSubscription(views.APIView):
             decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
             user_id = decoded['user']
             user = RestaurantUser.objects.get(id=user_id)
-            print(user)
             customer_id = user.stripe_customer_id
 
             # Get the subscription
