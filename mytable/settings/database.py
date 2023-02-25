@@ -33,3 +33,5 @@ else:
             'PORT': os.getenv('DB_PORT', 25060)
         }
     }
+
+print("DATABASES: ", DATABASES)
