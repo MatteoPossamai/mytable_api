@@ -7,8 +7,8 @@ class Take(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     quantity = models.IntegerField()
-    counter = models.IntegerField()
-    batch = models.IntegerField()
+    counter = models.IntegerField(default=0)
+    batch = models.IntegerField(default=0)
 
     def __str__(self):
         return "Order: " + str(self.order.id) + " - Item: " + \

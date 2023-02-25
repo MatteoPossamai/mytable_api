@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 
 # LOADING CUSTOM ENV VARS
-ENV_TYPE = os.getenv("ENV_TYPE", default="local")
+ENV_TYPE = os.getenv("ENV_TYPE", default="master")
 
 if ENV_TYPE == "local":
     paths = [
