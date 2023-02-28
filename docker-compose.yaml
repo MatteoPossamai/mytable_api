@@ -54,7 +54,7 @@ services:
   nginx:
     build: ./nginx
     ports:
-      - "80:80"
+      - "8000:80"
     depends_on:
       - my_table
 
