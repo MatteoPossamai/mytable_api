@@ -14,8 +14,6 @@ accesslog = '-'
 errorlog = '-'
 
 # SSL
-
 certfile = '/etc/letsencrypt/live/api.my-table.it/fullchain.pem'
 keyfile = '/etc/letsencrypt/live/api.my-table.it/privkey.pem'
 ssl_version = 2
-

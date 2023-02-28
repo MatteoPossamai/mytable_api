@@ -45,6 +45,8 @@ services:
     command: ['python', '-m', 'celery', '-A', 'mytable' ,'worker', '-l', 'INFO']
     volumes:
       - .:/api
+      - /etc/letsencrypt/live/api.my-table.it/fullchain.pem:/etc/letsencrypt/live/api.my-table.it/fullchain.pem
+      - /etc/letsencrypt/live/api.my-table.it/privkey.pem:/etc/letsencrypt/live/api.my-table.it/privkey.pem
     depends_on:
       - redis
       - my_table
