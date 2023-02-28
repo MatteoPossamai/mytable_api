@@ -17,8 +17,6 @@ RUN pip install --user --default-timeout=1000 -r requirements.txt
 
 EXPOSE 5000
 
-#ENV PATH="/home/devuser/.local/bin"
-
 COPY --chown=devuser:devuser . .
 
 ENTRYPOINT [ "sh", "entrypoint.sh" ]
