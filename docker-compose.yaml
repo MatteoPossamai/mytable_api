@@ -51,6 +51,13 @@ services:
     links:
       - redis
 
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - my_table
+
 volumes:
   my_table_postgres_db:
   redis_data:
