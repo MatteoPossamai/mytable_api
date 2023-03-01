@@ -61,8 +61,8 @@ services:
     depends_on:
       - my_table
     ports:
-      - 10080:80
-      - 100443:443
+      - 8000:80
+      - 8001:443
     volumes:
       - ./etc/nginx/templates:/etc/nginx/templates:ro
       - ./etc/letsencrypt:/etc/letsencrypt
