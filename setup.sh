@@ -6,9 +6,9 @@ echo DOMAIN= "api.my-table.it" > .env
 echo EMAIL= "mpossamaim@gmail.com" >> .env
 
 # Phase 1 "Initiation"
-docker-compose -f ./docker-compose-first.yaml up -d nginx
-docker-compose -f ./docker-compose-first.yaml up certbot
-docker-compose -f ./docker-compose-first.yaml down
+docker-compose -f ./docker-compose-initiate.yaml up -d nginx
+docker-compose -f ./docker-compose-initiate.yaml up certbot
+docker-compose -f ./docker-compose-initiate.yaml down
 
 # Phase 2 "Operation"    
 crontab ./etc/crontab
