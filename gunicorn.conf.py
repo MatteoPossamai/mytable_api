@@ -14,6 +14,6 @@ accesslog = '-'
 errorlog = '-'
 
 # SSL
-certfile = '/certs/fullchain.pem'
-keyfile = '/certs/privkey.pem'
+certfile = '/etc/letsencrypt/live/domain.it/fullchain.pem'
+keyfile = '/etc/letsencrypt/live/domain.it/privkey.pem'
 ssl_version = 2
