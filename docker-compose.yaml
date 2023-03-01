@@ -63,5 +63,4 @@ services:
 volumes:
   my_table_postgres_db:
   redis_data:
-  # get the local path of the ssl certificates
-  path_to_ssl_certificates: /etc/letsencrypt/live/domain.it/
+  path_to_ssl_certificates:
