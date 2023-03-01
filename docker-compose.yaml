@@ -28,8 +28,7 @@ services:
     build: .
     command: ["python", "-m", "gunicorn", "--bind", "0.0.0.0:5000", "-c", "gunicorn.conf.py", "mytable.wsgi"]
     volumes:
-      - .:/api
-      - /etc/letsencrypt/live/api.my-table.it/:/certs
+      - .:/api  
     ports:
       - "5000:5000"
     depends_on:
