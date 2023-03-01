@@ -55,8 +55,10 @@ services:
   nginx:
     restart: always
     build: ./nginx/
+    environment:
+      - CERTBOT_EMAIL=mpossamaim@gmail.com
     ports:
-      - "800:80"
+      - "8000:80"
       - "8001:443"
     volumes:
       - www-certs:/etc/letsencrypt
