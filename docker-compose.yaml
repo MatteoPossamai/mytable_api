@@ -55,8 +55,8 @@ services:
   nginx:
       build: ./nginx
       ports:
-         - 80:80
-         - 443:443
+      - "10080:80"
+      - "10443:443"
       depends_on:
          - my_table
       command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
