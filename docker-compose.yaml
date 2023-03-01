@@ -53,19 +53,37 @@ services:
       - redis
 
   nginx:
-      build: ./nginx
-      ports:
-      - "10080:80"
-      - "10443:443"
-      depends_on:
-         - my_table
-      command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
-  
+    container_name: nginx
+    image: nginx:latest
+    restart: always
+    environment:
+      - DOMAIN
+    depends_on:
+      - app
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./etc/nginx/templates:/etc/nginx/templates:ro
+      - ./etc/letsencrypt:/etc/letsencrypt
+      - ./certbot/data:/var/www/certbot
+      - /var/log/nginx:/var/log/nginx
+
   certbot:
-      image: certbot/certbot
-      entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    container_name: certbot
+    image: certbot/certbot:latest
+    depends_on:
+      - nginx
+    command: >-
+             certonly --reinstall --webroot --webroot-path=/var/www/certbot
+             --email mpossamaim@gmail.com --agree-tos --no-eff-email
+             -d api.my-table.it
+    volumes:
+      - ./etc/letsencrypt:/etc/letsencrypt
+      - ./certbot/data:/var/www/certbot
 
 
 volumes:
   my_table_postgres_db:
   redis_data:
+  
