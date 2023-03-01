@@ -13,6 +13,7 @@ accessformat = '%(t)s %(h)s %(l)s %(r)s %(s)s %(b)s %(f)s %(a)s'
 accesslog = '-'
 errorlog = '-'
 
+print("Mod")
 # SSL
 certfile = "/certs/fullchain.pem"
 keyfile = "/certs/privkey.pem"
