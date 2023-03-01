@@ -16,4 +16,3 @@ errorlog = '-'
 # SSL
 certfile = "/api/fullchain.pem"
 keyfile = "/api/privkey.pem"
-ssl_version = 2
