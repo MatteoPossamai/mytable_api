@@ -56,8 +56,8 @@ services:
     restart: always
     build: ./nginx/
     ports:
-      - "80:80"
-      - "443:443"
+      - "800:80"
+      - "8001:443"
     volumes:
       - www-certs:/etc/letsencrypt
 
