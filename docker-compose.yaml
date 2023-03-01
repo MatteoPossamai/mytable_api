@@ -57,8 +57,8 @@ services:
     environment:
       - CERTBOT_EMAIL=mpossamaim@gmail.com
     ports:
-      - "8000:80"
-      - "8001:443"
+      - "80:80"
+      - "443:443"
     volumes:
       - www-certs:/etc/letsencrypt
 
