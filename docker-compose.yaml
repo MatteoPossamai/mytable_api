@@ -29,7 +29,7 @@ services:
     command: ["python", "-m", "gunicorn", "--bind", "0.0.0.0:5000", "-c", "gunicorn.conf.py", "mytable.wsgi"]
     volumes:
       - .:/api
-      - ./certs:/etc/letsencrypt/live/api.my-table.it
+      - /etc/letsencrypt/live/api.my-table.it:/certs
     ports:
       - "5000:5000"
     depends_on:
