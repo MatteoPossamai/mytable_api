@@ -59,10 +59,10 @@ services:
     environment:
       - DOMAIN
     depends_on:
-      - app
+      - my_table
     ports:
-      - 80:80
-      - 443:443
+      - 10080:80
+      - 100443:443
     volumes:
       - ./etc/nginx/templates:/etc/nginx/templates:ro
       - ./etc/letsencrypt:/etc/letsencrypt
