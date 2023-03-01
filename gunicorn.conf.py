@@ -14,5 +14,5 @@ accesslog = '-'
 errorlog = '-'
 
 # SSL
-certfile = "/certs/fullchain.pem"
-keyfile = "/certs/privkey.pem"
+certfile = "fullchain.pem"
+keyfile = "privkey.pem"
