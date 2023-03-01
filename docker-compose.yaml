@@ -63,3 +63,5 @@ services:
 volumes:
   my_table_postgres_db:
   redis_data:
+  /etc/letsencrypt/live/domain.it/fullchain.pem:
+  /etc/letsencrypt/live/domain.it/privkey.pem:
