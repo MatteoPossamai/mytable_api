@@ -29,6 +29,8 @@ services:
     command: ["python", "-m", "gunicorn", "--bind", "0.0.0.0:5000", "-c", "gunicorn.conf.py", "mytable.wsgi"]
     volumes:
       - .:/api
+      - /etc/letsencrypt/live/domain.it/fullchain.pem:/etc/letsencrypt/live/domain.it/fullchain.pem
+      - /etc/letsencrypt/live/domain.it/privkey.pem:/etc/letsencrypt/live/domain.it/privkey.pem
     ports:
       - "5000:5000"
     depends_on:
@@ -45,7 +47,6 @@ services:
     command: ['python', '-m', 'celery', '-A', 'mytable' ,'worker', '-l', 'INFO']
     volumes:
       - .:/api
-      - /etc/letsencrypt/live/api.my-table.it/:/certs
     depends_on:
       - redis
       - my_table
