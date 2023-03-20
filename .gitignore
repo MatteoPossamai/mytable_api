@@ -25,3 +25,6 @@ db_password.txt
 
 .devcontainer/
 dump.rdb
+
+etc/
+./etc

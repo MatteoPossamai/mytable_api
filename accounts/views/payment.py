@@ -59,7 +59,8 @@ class CreateCheckoutSessionView(views.APIView):
             customer.save()
 
             return redirect(checkout_session.url)
-        except Exception:
+        except Exception as e:
+            print(e)
             return JsonResponse({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -176,6 +177,7 @@ class GetProductsView(views.APIView):
             products = stripe.Product.list(limit=5, expand=['data.default_price'])
             return JsonResponse(products, safe=False)
         except Exception as e:
+            print(e)
             return JsonResponse({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -211,4 +213,5 @@ class GetCustomerSubscription(views.APIView):
 
             return JsonResponse({"prices":prices, "products": products}, status=status.HTTP_200_OK)
         except Exception as e:
+            print(e)
             return JsonResponse({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
