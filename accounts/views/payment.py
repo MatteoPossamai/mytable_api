@@ -87,25 +87,31 @@ class CustomerPortalView(views.APIView):
     """
 
     def post(self, request, format=None):
-        token = request.data.get("token")
+        try:
+            token = request.data.get("token")
 
-        if token is not None and is_token_valid(token):
-            decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
-            user_id = decoded['user']
-            user = RestaurantUser.objects.get(id=user_id)
-            customer_id = user.stripe_customer_id
+            if token is not None and is_token_valid(token):
+                decoded = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
+                user_id = decoded['user']
+                user = RestaurantUser.objects.get(id=user_id)
+                customer_id = user.stripe_customer_id
 
-            # Get the restaurant id of the customer
-            restaurant = Restaurant.objects.get(owner=user)
-            return_url = settings.FRONTEND_MAIN_PAGE + f"/{restaurant.id}"
+                # Get the restaurant id of the customer
+                restaurant = Restaurant.objects.get(owner=user)
+                return_url = settings.FRONTEND_MAIN_PAGE + f"/{restaurant.id}"
 
-            session = stripe.billing_portal.Session.create(
-                customer=customer_id,
-                return_url=return_url,
-            )   
-            return redirect(session.url, code=303)
-        else:
-            return redirect(return_url, code=403)
+                session = stripe.billing_portal.Session.create(
+                    customer=customer_id,
+                    return_url=return_url,
+                )  
+                print(session)
+                print(session.url) 
+                return redirect(session.url, code=303)
+            else:
+                return redirect(return_url, code=403)
+        except Exception as e:
+            print(e)
+            return JsonResponse({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class WebhookView(views.APIView):
