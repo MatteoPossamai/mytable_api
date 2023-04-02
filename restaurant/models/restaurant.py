@@ -3,7 +3,7 @@ from django.db import models
 from accounts.models import RestaurantUser
 
 class Restaurant(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=False)
     location = models.CharField(max_length=100)
     phone = models.CharField(max_length=100)
     description = models.TextField(default=None, null=True)
