@@ -51,16 +51,21 @@ services:
     links:
       - redis
 
-  nginx:
-    restart: always
-    build: ./nginx/
-    environment:
-      - CERTBOT_EMAIL=mpossamaim@gmail.com
+  webserver:
+    image: nginx:latest
     ports:
-      - "80:80"
-      - "443:443"
+      - 80:80
+      - 443:443
+    restart: always
     volumes:
-      - www-certs:/etc/letsencrypt
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
 
 volumes:
   my_table_postgres_db:

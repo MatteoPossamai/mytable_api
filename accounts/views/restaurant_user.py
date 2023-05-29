@@ -64,7 +64,7 @@ class RestaurantUserCreateView(views.APIView):
             return JsonResponse({'error': 'User already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
         except Exception as e:
-            
+            print(e)
             return JsonResponse({'error': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
 
 
