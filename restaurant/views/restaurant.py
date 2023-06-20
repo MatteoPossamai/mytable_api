@@ -47,37 +47,50 @@ class RestaurantGetView(generics.RetrieveAPIView):
     serializer_class = RestaurantSerializer
 
     def get(self, request, pk, *args, **kwargs):
-        restaurant = self.get_object()
-        serializer = RestaurantSerializer(restaurant)
+        try:
+            restaurant = self.get_object()
+            serializer = RestaurantSerializer(restaurant)
 
-        # Get the owner of the restaurant
-        owner = restaurant.owner.stripe_customer_id
-        
-        # Get the subscription
-        subscription = stripe.Subscription.list(customer=owner)
+            # Get the owner of the restaurant
+            owner = restaurant.owner.stripe_customer_id
+            
+            # Get the subscription
+            subscription = stripe.Subscription.list(customer=owner)
 
-        prices = []
-        products = []
+            prices = []
+            products = []
 
-        for sub in subscription.data:
-            if sub.status == 'active' or sub.status == 'trialing' or sub.status == 'incomplete_expired':
-                items = stripe.SubscriptionItem.list(
-                    subscription=sub.id,
-                )
+            for sub in subscription.data:
+                if sub.status == 'active' or sub.status == 'trialing' or sub.status == 'incomplete_expired':
+                    items = stripe.SubscriptionItem.list(
+                        subscription=sub.id,
+                    )
 
-                for item in items.data:
-                    prices.append(item.price.id)
-                    products.append(item.price.product)
+                    for item in items.data:
+                        prices.append(item.price.id)
+                        products.append(item.price.product)
 
-        data = {
-            "base_menu": True if settings.BASIC_MENU in products else False, 
-            "image_menu": True if settings.IMAGE_MENU in products else False,
-            "client_order": True if settings.CLIENT_ORDER in products else False,
-            "waiter_order": True if settings.WAITER_ORDER in products else False,
-        }
+            palette = [restaurant.color_palette[i] for i in range(len(restaurant.color_palette)) ]
+            border = restaurant.border
 
-        return JsonResponse({"restaurant":serializer.data, "auth": data}, status=status.HTTP_200_OK)
+            data = {
+                "base_menu": True if settings.BASIC_MENU in products else False, 
+                "image_menu": True if settings.IMAGE_MENU in products else False,
+                "client_order": True if settings.CLIENT_ORDER in products else False,
+                "waiter_order": True if settings.WAITER_ORDER in products else False,
+            }
 
+            palette_data = {
+                "primary": str(palette[0]),
+                "secondary": str(palette[1]),
+                "box": str(palette[2]),
+                "bg": str(palette[3]),
+                "text": str(palette[4]),
+            }
+
+            return JsonResponse({"restaurant":serializer.data, "auth": data, "palette": palette_data, "border": border}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class RestaurantPutView(generics.RetrieveUpdateDestroyAPIView):
     """
