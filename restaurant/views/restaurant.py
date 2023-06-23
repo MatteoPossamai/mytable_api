@@ -6,6 +6,7 @@ from django.conf import settings
 
 from ..models.restaurant import Restaurant
 from ..serializers.restaurant import RestaurantSerializer
+from ..serializers.colored_restaurant_serializer import ColoredRestaurantSerializer
 from accounts.models import RestaurantUser
 
 from utilities import IsOwnerOrReadOnly, IsLogged
@@ -99,6 +100,30 @@ class RestaurantPutView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
     permission_classes = [IsLogged, IsOwnerOrReadOnly]
+
+
+class RestaurantPutColorView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Description: update a restaurant
+    """
+    queryset = Restaurant.objects.all()
+    serializer_class = ColoredRestaurantSerializer
+    permission_classes = [IsLogged, IsOwnerOrReadOnly]
+
+    def put(self, request, pk, *args, **kwargs):
+        print(request.data)
+        try:
+            restaurant = self.get_object()
+            if len(request.data['data']['colors']) == len(restaurant.color_palette):
+                restaurant.color_palette = request.data['data']['colors']
+                border = int(request.data['data']['border'])
+                restaurant.border = border
+                restaurant.save()
+                return JsonResponse({"Status":"Changed"}, status=status.HTTP_200_OK)
+            return JsonResponse("Unvalid Input data: number of color is uncorrect", 
+                                status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RestaurantDeleteView(generics.DestroyAPIView):

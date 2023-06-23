@@ -7,7 +7,7 @@ from .views import RestaurantCreateView, RestaurantGetAllView, RestaurantGetView
     ItemsChangeNumberView, CategoriesChangeNumberView, ItemsChangeActiveView,  \
     CategoriesChangeActiveView, CategoryGetAllByRestaurant, CategoriesBulkUpdate, \
     ItemGetByRestaurantView, ItemGetByRestaurantActiveView, ItemGetByCategoryView, ItemGetByCategoryActiveView, \
-    ItemsBulkUpdate    
+    ItemsBulkUpdate, RestaurantPutColorView
 
 current_version = 'v1'
 
@@ -57,6 +57,7 @@ restaurant_urlpatterns = [
     path('', RestaurantGetAllView.as_view(), name='restaurant-get-all'),
     path('<int:pk>/', RestaurantGetView.as_view(), name='restaurant-detail'),
     # Update
+    path('put/color/<int:pk>/', RestaurantPutColorView.as_view(), name='restaurant-put-color'),
     path('put/<int:pk>/', RestaurantPutView.as_view(), name='restaurant-put'),
     # Delete
     path('delete/<int:pk>/', RestaurantDeleteView.as_view(), name='restaurant-delete'),
